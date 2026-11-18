@@ -1,0 +1,1 @@
+# yinmacau-weekly-report-helper
