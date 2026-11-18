@@ -1,0 +1,3197 @@
+<!DOCTYPE html>
+<!-- weekly-report 2026-11-18-dual-mode  已转正 / 新人版本 · 基于 r2 -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>周报小助手</title>
+<style>
+/* ==========================================================================
+   周报小助手 — 样式
+   设计令牌全部集中在 :root，改主题只需改这里。
+   类名约定：.app-* 布局 / .panel* 卡片 / .field* 表单 / .btn* 按钮 /
+            .status* 状态 / .result* 结果 / .history* 历史 / .tips* 侧栏 / .md 渲染内容
+   ========================================================================== */
+:root {
+  --color-bg: #F2F0EB;
+  --color-surface: #FAF9F6;
+  --color-surface-muted: #EFECE6;
+  --color-border: #CFCAC1;
+  --color-border-strong: #B7B1A6;
+  --color-input-border: #7A7368;
+  --color-placeholder: #625E57;
+  --color-text: #292724;
+  --color-text-muted: #625E57;
+  --color-primary: #2F5BFF;
+  --color-primary-hover: #2448D6;
+  --color-primary-soft: #E8EDFF;
+  --color-primary-contrast: #ffffff;
+  --color-danger: #B42318;
+  --color-danger-hover: #912018;
+  --color-danger-bg: #FCECEA;
+  --color-warning: #8A5A12;
+  --color-warning-bg: #F8F1E3;
+  --color-warning-border: #E4D3A8;
+  --color-success: #047857;
+  --color-success-bg: #E6F5F0;
+  --color-placeholder-bg: #F4EFD9;
+  --color-code-bg: #EFECE6;
+  --color-focus: rgba(41, 39, 36, .36);
+  --color-header-mark: #292724;
+  --color-highlight: rgba(255, 255, 255, .72);
+  --shadow-inset: inset 0 1px 2px rgba(49, 42, 31, .10);
+  --shadow-pressed: inset 0 2px 4px rgba(49, 42, 31, .14);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-size-base: 15px;
+  --font-size-sm: 13px;
+  --font-size-xs: 12px;
+  --line-height: 1.65;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  --shadow-sm: 0 1px 3px rgba(49, 42, 31, .08);
+  --shadow: 0 3px 8px rgba(49, 42, 31, .10);
+  --shadow-md: 0 4px 10px rgba(49, 42, 31, .12);
+  --shadow-lift: 0 4px 12px rgba(49, 42, 31, .14);
+  --shadow-primary: 0 3px 8px rgba(47, 91, 255, .28);
+  --highlight: inset 0 1px 0 var(--color-highlight);
+  --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-focus);
+
+  --layout-max: 1440px;
+  --editor-min-height: 280px;
+  --sticky-bar-h: 88px;
+  --layout-gap: 16px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.app-header, .mock-banner { flex: 0 0 auto; }
+button, input, select, textarea { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+/* ---------- 顶栏 ---------- */
+.app-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 14px var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+.app-header__inner {
+  max-width: var(--layout-max);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.app-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+}
+.app-title::before {
+  content: "";
+  width: 8px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--color-header-mark);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, .35);
+  flex-shrink: 0;
+}
+.app-subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+.mock-banner {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  padding: 8px var(--space-4);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  border-bottom: 1px solid var(--color-warning-border);
+  font-weight: 500;
+}
+.mock-banner code {
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, .7);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+}
+
+/* ---------- 布局（两栏：草稿 | 结果；操作收至上方工具条） ---------- */
+.app-main {
+  max-width: var(--layout-max);
+  margin: 0 auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--layout-gap);
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow: visible;
+}
+.app-alerts { display: flex; flex-direction: column; gap: var(--space-3); }
+/* 只看直接子级通知/错误是否可见，避免内部未 hidden 的节点让空条仍占 flex gap、把反馈与历史撑成 32px */
+.app-alerts:not(:has(> :not([hidden]))) { display: none; }
+.app-alerts .alert { margin-top: 0; }
+.app-col--tips, .app-col--tips[hidden] { display: none !important; }
+
+/* 周报模式：已转正在前、新人版本在后；视觉沿用工具条卡片 */
+.app-mode {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  padding: 12px 18px;
+}
+.app-mode .panel__title { margin: 0; }
+.app-mode .radio-group { flex: 0 1 auto; }
+.app-mode__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+/* 顶栏工具条：润色程度 + 开始润色 + 状态 */
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+  padding: 12px 18px;
+}
+.app-toolbar__intensity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+.app-toolbar__intensity .panel__title { margin: 0; }
+.app-toolbar .actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.app-toolbar .actions .btn--primary,
+.app-toolbar .actions .btn--stop { min-width: 132px; }
+.app-toolbar .actions__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+/* 宽屏（≥768px）：两列网格，标题区与两个文字框分行对齐，上沿下沿始终同一水平线 */
+.app-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(var(--editor-min-height), 1fr);
+  grid-template-areas:
+    "dhead rhead"
+    "dedit redit";
+  column-gap: var(--layout-gap);
+  row-gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-items: stretch;
+}
+.pane__head--draft { grid-area: dhead; }
+.pane__head--result { grid-area: rhead; }
+.pane__editor--draft { grid-area: dedit; }
+.pane__editor--result { grid-area: redit; }
+
+.pane__head,
+.pane__editor {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.pane__head {
+  padding: 16px 18px 12px;
+  border-bottom: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: none;
+}
+.pane__editor {
+  padding: 0 18px 18px;
+  border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  display: flex;
+  flex-direction: column;
+  min-height: var(--editor-min-height);
+  height: var(--editor-min-height);
+  max-height: var(--editor-min-height);
+  overflow: hidden;
+}
+.pane__editor.field { margin-bottom: 0; }
+.pane__head .panel__title { margin: 0 0 12px; }
+.pane__head .field-grid { margin-bottom: 0; }
+.pane__head .btn-row { margin-top: 4px; }
+.pane__head .result__header { margin-bottom: var(--space-2); }
+.pane__head .result__modes { margin-bottom: 0; }
+
+.pane__editor .textarea--draft,
+.pane__editor .result__body {
+  flex: 1 1 auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  resize: none;
+  overflow: auto;
+}
+.pane__editor .result__body {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #F3F1EC;
+  box-shadow: var(--shadow-inset);
+}
+.pane__editor .result__source,
+.pane__editor .result__empty,
+.pane__editor .md {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  resize: none;
+  overflow: auto;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.pane__editor .result__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.pane__editor .md {
+  padding: 10px 12px;
+  /* 预览内容随文档增高，由外层 #result-body 统一内部滚动，避免套一层自滚动导致 body.scrollHeight==clientHeight */
+  flex: 0 0 auto;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+.pane__editor .result__source {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+}
+
+/* 修改意见：两框下方独立整行；与上方工作区的 16px 间距由 .app-main 的 gap 提供，不再叠加 margin */
+.feedback {
+  margin-top: 0;
+  padding: 16px;
+  flex: 0 0 auto;
+}
+.feedback .btn-row { margin-top: var(--space-2); }
+
+@media (max-width: 1099px) {
+  .field-grid { grid-template-columns: 1fr; }
+}
+
+/* 窄屏（<768px，含手机）：单栏，统一间距；768 平板走宽屏两列 */
+@media (max-width: 767px) {
+  :root { --editor-min-height: 220px; }
+  .app-main {
+    padding: 16px;
+    padding-bottom: calc(var(--sticky-bar-h) + 16px + env(safe-area-inset-bottom, 0px));
+    gap: 16px;
+  }
+  .app-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(var(--editor-min-height), auto) auto minmax(var(--editor-min-height), auto);
+    grid-template-areas:
+      "dhead"
+      "dedit"
+      "rhead"
+      "redit";
+    row-gap: 0;
+    column-gap: 0;
+    flex: 0 0 auto;
+  }
+  .pane__editor--draft { margin-bottom: 0; }
+  .pane__head--result { margin-top: 16px; }
+  .pane__editor {
+    min-height: var(--editor-min-height);
+    height: min(42vh, 420px);
+    max-height: min(42vh, 420px);
+    padding: 0 12px 12px;
+  }
+  .pane__head { padding: 12px 12px 8px; }
+  .app-toolbar,
+  .panel,
+  .feedback { padding: 12px; }
+  .app-toolbar {
+    gap: var(--space-2);
+  }
+  .app-toolbar__intensity { width: 100%; }
+  .app-toolbar__intensity .radio-group { flex: 1 1 auto; justify-content: space-between; }
+  .app-toolbar .actions__hint { display: none; }
+  /* 主操作固定底部，不遮挡内容（主区域已留 padding-bottom） */
+  .app-toolbar .actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    width: auto;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -8px 28px rgba(15, 23, 42, .1);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+  .app-toolbar .actions .btn--primary,
+  .app-toolbar .actions .btn--stop {
+    width: auto;
+    min-height: 44px;
+    padding: 10px 22px;
+  }
+  .toast {
+    bottom: calc(var(--sticky-bar-h) + env(safe-area-inset-bottom, 0px) + 8px);
+  }
+}
+
+/* ---------- 卡片 ---------- */
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 18px;
+}
+.panel__title {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--color-text);
+}
+.panel__summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -.01em;
+  color: var(--color-text);
+  list-style-position: inside;
+}
+.panel__summary:hover { color: var(--color-primary); }
+details.panel > .panel__summary + * { margin-top: var(--space-3); }
+.model-summary__status { margin-left: var(--space-2); font-size: var(--font-size-xs); font-weight: 500; color: var(--color-text-muted); letter-spacing: 0; }
+.model-summary__status[data-configured="false"] { color: var(--color-danger); }
+
+/* ---------- 表单 ---------- */
+.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
+.field:last-child { margin-bottom: 0; }
+.field__label { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text); }
+.field__hint { font-size: var(--font-size-xs); color: var(--color-text-muted); margin: 0; }
+.field__row { display: flex; gap: var(--space-2); align-items: center; }
+.field__row > .input { flex: 1; min-width: 0; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--space-3); }
+@media (max-width: 1099px) { .field-grid { grid-template-columns: 1fr; } }
+.input, .select, .textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  padding: 8px 12px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.input, .select { min-height: 38px; }
+.input:hover, .select:hover, .textarea:hover { border-color: var(--color-border-strong); }
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+.textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.textarea--draft { min-height: 0; }
+
+/* 分段胶囊：在现有 label + radio 结构上纯 CSS 实现 */
+.radio-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 3px;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+.radio-group label, .switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  padding: 6px 14px;
+  border-radius: 999px;
+  position: relative;
+  line-height: 1.3;
+  transition: background .15s, color .15s, box-shadow .15s;
+}
+.radio-group label:hover { color: var(--color-text); }
+.radio-group input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+.radio-group label:has(input:checked) {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+.radio-group label:has(input:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+.switch { padding: 0; background: none; border: 0; }
+
+.security-note {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-3);
+}
+.security-note strong { color: var(--color-text); }
+.security-note ul { margin: var(--space-1) 0 0; padding-left: 1.2em; }
+
+/* ---------- 按钮 ---------- */
+.btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  min-height: 32px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: background .15s, border-color .15s, box-shadow .15s, color .15s;
+}
+.btn:hover:not(:disabled) { background: var(--color-surface-muted); border-color: var(--color-border-strong); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); border-color: var(--color-primary); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: 600;
+  padding: 9px 22px;
+  font-size: var(--font-size-base);
+  min-height: 42px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-primary);
+}
+.btn--primary:hover:not(:disabled) { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+.btn--primary:focus-visible { outline: none; box-shadow: var(--shadow-primary), var(--focus-ring); }
+.btn--soft {
+  background: var(--color-primary-soft);
+  border-color: #bfdbfe;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.btn--soft:hover:not(:disabled) {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: var(--color-primary-hover);
+}
+.btn--danger { color: var(--color-danger); }
+.btn--danger:hover:not(:disabled) { background: var(--color-danger-bg); border-color: #fecaca; color: var(--color-danger-hover); }
+.btn--stop {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  padding: 9px 20px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  min-height: 42px;
+  border-radius: 10px;
+}
+.btn--stop:hover:not(:disabled) { background: #fee2e2; color: var(--color-danger-hover); }
+.btn-row { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; }
+
+/* ---------- 操作与状态 ---------- */
+.actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.status {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: .02em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+.status[data-state="requesting"], .status[data-state="streaming"] {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border-color: #bfdbfe;
+}
+.status[data-state="done"] {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: #bbf7d0;
+}
+.status[data-state="error"] {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: #fecaca;
+}
+.status[data-state="aborted"] {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning-border);
+}
+.actions__hint { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+
+.alert { border-radius: var(--radius-sm); padding: var(--space-3); font-size: var(--font-size-sm); margin-top: var(--space-3); border: 1px solid transparent; }
+.alert--error { background: var(--color-danger-bg); color: var(--color-danger); border-color: #fecaca; }
+.alert--info { background: var(--color-warning-bg); color: var(--color-warning); border-color: var(--color-warning-border); }
+.alert__title { font-weight: 600; margin: 0 0 var(--space-1); }
+.alert__body { margin: 0; white-space: pre-wrap; color: var(--color-text); }
+.alert__raw { margin-top: var(--space-2); }
+.alert__raw pre { white-space: pre-wrap; word-break: break-all; font-size: var(--font-size-xs); background: var(--color-surface); padding: var(--space-2); border-radius: var(--radius-sm); max-height: 200px; overflow: auto; color: var(--color-text); }
+
+/* ---------- 结果 ---------- */
+.result__header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-3); }
+.result__header .panel__title { margin: 0; flex: 1 1 auto; min-width: 0; }
+.result__header .btn-row { justify-content: flex-end; }
+.result__meta { font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--space-2); }
+.result__body { overflow-y: auto; overflow-wrap: anywhere; min-height: 0; }
+.result__empty {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 56px 20px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-surface-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ---------- 结果编辑 / 追问 / 历史导入导出（新功能，尽量沿用现有变量） ---------- */
+.result__modes { display: flex; gap: var(--space-2); margin: 0 0 var(--space-2); }
+.result__source {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  box-sizing: border-box;
+}
+.history__toolbar .btn-row { flex-wrap: wrap; justify-content: flex-end; }
+
+/* ---------- Markdown 内容 ---------- */
+.md { line-height: 1.75; color: var(--color-text); }
+.md h1 { font-size: 1.4em; margin: .2em 0 .6em; letter-spacing: -.02em; color: var(--color-text); }
+.md h2 { font-size: 1.2em; margin: 1.35em 0 .5em; padding-bottom: .35em; border-bottom: 1px solid var(--color-border); color: var(--color-text); letter-spacing: -.01em; }
+.md h3 { font-size: 1.05em; margin: 1em 0 .4em; color: var(--color-text); }
+.md h4, .md h5, .md h6 { font-size: 1em; margin: 1em 0 .4em; color: var(--color-text); }
+.md p { margin: .55em 0; }
+.md ul, .md ol { margin: .45em 0; padding-left: 1.5em; }
+.md li { margin: .2em 0; }
+.md blockquote {
+  margin: .7em 0;
+  padding: .35em 1em;
+  border-left: 3px solid var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.md code { font-family: var(--font-mono); background: var(--color-code-bg); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+.md pre { background: var(--color-code-bg); padding: var(--space-3); border-radius: var(--radius-sm); overflow-x: auto; border: 1px solid var(--color-border); }
+.md pre code { background: none; padding: 0; }
+.md table { border-collapse: collapse; margin: .7em 0; display: block; overflow-x: auto; max-width: 100%; }
+.md th, .md td { border: 1px solid var(--color-border); padding: 6px 10px; vertical-align: top; }
+.md th { background: var(--color-surface-muted); font-weight: 600; }
+.md hr { border: 0; border-top: 1px solid var(--color-border); margin: 1.2em 0; }
+.md a { color: var(--color-primary); }
+.md .md-placeholder { background: var(--color-placeholder-bg); border-radius: 3px; padding: 0 2px; }
+
+/* ---------- 历史 ---------- */
+.history__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.history__item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.history__item:hover {
+  background: var(--color-surface-muted);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+}
+.history__info { flex: 1; min-width: 0; }
+.history__meta { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.history__snippet { font-size: var(--font-size-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history__empty { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.history__toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); font-size: var(--font-size-xs); color: var(--color-text-muted); }
+
+/* ---------- 润色要点侧栏 ---------- */
+.tips__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-size-sm);
+  counter-reset: tip;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tips__list li {
+  margin: 0;
+  position: relative;
+  padding: 8px 10px 8px 38px;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  line-height: 1.5;
+  counter-increment: tip;
+}
+.tips__list li::before {
+  content: counter(tip);
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 22px;
+  text-align: center;
+}
+.tips__examples { margin-top: var(--space-3); font-size: var(--font-size-xs); }
+.tips__examples summary { cursor: pointer; font-weight: 600; }
+.tips__examples dl { margin: var(--space-2) 0 0; }
+.tips__examples dt { color: var(--color-danger); margin-top: var(--space-2); }
+.tips__examples dt::before { content: "✗ "; }
+.tips__examples dd { margin: 0; color: var(--color-success); }
+.tips__examples dd::before { content: "✓ "; }
+
+/* ---------- 帮助 ---------- */
+.help { font-size: var(--font-size-sm); }
+.help summary { cursor: pointer; font-weight: 600; }
+.help ol, .help ul { padding-left: 1.4em; }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  background: rgba(15, 23, 42, .92); color: #fff; padding: 8px 16px; border-radius: 999px;
+  font-size: var(--font-size-sm); z-index: 100; pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+  box-shadow: var(--shadow-md);
+}
+.toast.is-visible { opacity: 1; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- 浅色拟物：高光、内凹输入、主按钮仅用于「开始润色」 ---------- */
+.app-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--highlight), var(--shadow-sm);
+}
+.app-title { color: var(--color-text); }
+.app-title::before { background: var(--color-header-mark); box-shadow: none; }
+.app-subtitle { color: var(--color-text-muted); }
+
+.panel,
+.app-toolbar,
+.app-mode,
+.pane__head,
+.pane__editor,
+.feedback {
+  background: linear-gradient(180deg, #FFFcf8 0%, var(--color-surface) 42%);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--highlight), var(--shadow);
+}
+.pane__head {
+  box-shadow: var(--highlight);
+  background: linear-gradient(180deg, #FFFcf8 0%, var(--color-surface) 100%);
+}
+.pane__editor {
+  box-shadow: var(--shadow);
+}
+
+.input, .select, .textarea,
+.textarea--draft,
+.result__source {
+  background: #F3F1EC;
+  border: 1px solid var(--color-input-border);
+  box-shadow: var(--shadow-inset);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+}
+.input::placeholder, .textarea::placeholder { color: var(--color-placeholder); }
+.input:hover, .select:hover, .textarea:hover { border-color: #5F594F; }
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--color-text);
+  box-shadow: var(--shadow-inset), var(--focus-ring);
+}
+
+.btn {
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--highlight), var(--shadow-sm);
+}
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--highlight), var(--shadow-lift);
+  background: #F4F2ED;
+  border-color: var(--color-border-strong);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-pressed);
+  background: #E8E4DB;
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--highlight), var(--focus-ring);
+  border-color: var(--color-text);
+}
+.btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  color: var(--color-text-muted);
+}
+.btn--soft {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.btn--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+  box-shadow: var(--shadow-primary);
+}
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 4px 12px rgba(47, 91, 255, .34);
+  transform: translateY(-1px);
+}
+.btn--primary:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(20, 40, 140, .35);
+}
+.btn--primary:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-primary), 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
+}
+.btn--danger { color: var(--color-danger); background: var(--color-surface-muted); }
+.btn--danger:hover:not(:disabled) { background: var(--color-danger-bg); border-color: #E7B4B0; color: var(--color-danger-hover); }
+.btn--stop {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  box-shadow: var(--highlight), var(--shadow-sm);
+}
+
+.status { border: 1px solid var(--color-border); color: var(--color-text-muted); background: var(--color-surface-muted); }
+.status[data-state="requesting"], .status[data-state="streaming"] {
+  background: var(--color-primary-soft);
+  color: #1E3A8A;
+  border-color: #C5D0FF;
+}
+.status[data-state="done"] {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: #A8D7C8;
+}
+.status[data-state="error"] {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: #E7B4B0;
+}
+.status[data-state="aborted"] {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning-border);
+}
+.alert--error { background: var(--color-danger-bg); color: var(--color-danger); border-color: #E7B4B0; }
+.alert--info { background: var(--color-warning-bg); color: var(--color-warning); border-color: var(--color-warning-border); }
+
+/* 选中态不单靠阴影：实心浅底 + 更深描边 + 字重 */
+.radio-group {
+  background: #E8E4DB;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-inset);
+}
+.radio-group label { color: var(--color-text-muted); }
+.radio-group label:has(input:checked) {
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 700;
+  border: 1px solid var(--color-border-strong);
+  box-shadow: var(--highlight), var(--shadow-sm);
+}
+.radio-group label:has(input:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+
+.result__empty {
+  color: var(--color-text-muted);
+  background: #F3F1EC;
+  border: 1px dashed var(--color-border-strong);
+}
+
+.model-summary__status[data-configured="false"] { color: var(--color-danger); }
+
+@media (max-width: 767px) {
+  .app-toolbar .actions {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -3px 8px rgba(49, 42, 31, .10);
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header__inner">
+    <h1 class="app-title">周报小助手</h1>
+    <p class="app-subtitle">把草稿润色成领导爱看的周报</p>
+  </div>
+</header>
+<div class="mock-banner" id="mock-banner" hidden>模拟模式：不会发出任何网络请求，也无需密钥；输出为预置的示例周报，仅用于演示与测试。去掉网址里的 <code>?mock</code> 即恢复正常。</div>
+
+<main class="app-main">
+  <!-- ================= 顶部：模型与密钥（可折叠，整行） ================= -->
+    <details class="panel panel--model" id="model-panel">
+      <summary class="panel__summary" id="model-summary"><span id="model-title">模型与密钥</span><span class="model-summary__status" id="model-status"></span></summary>
+      <div class="panel--model__body">
+      <div class="field">
+        <label class="field__label" for="provider">服务商</label>
+        <select class="select" id="provider"></select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="base-url">Base URL</label>
+        <input class="input" id="base-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://…">
+        <p class="field__hint" id="provider-note"></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="model">模型</label>
+        <input class="input" id="model" type="text" list="model-options" autocomplete="off" spellcheck="false" placeholder="模型 ID">
+        <datalist id="model-options"></datalist>
+        <p class="field__hint" id="model-hint">可从下拉建议中选择，以服务商官方模型 ID 为准，可自行修改。</p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="api-key">API Key</label>
+        <div class="field__row">
+          <input class="input" id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="粘贴你的 API Key">
+          <button class="btn" type="button" id="toggle-key" aria-pressed="false">显示</button>
+          <button class="btn btn--danger" type="button" id="clear-key">清除密钥</button>
+        </div>
+      </div>
+      <div class="security-note" id="security-note">
+        <strong>密钥仅保存在本机，请求只发往你填写的服务商。</strong>
+        <ul>
+          <li>密钥只保存在本机浏览器（localStorage），不会上传给本工具作者；本工具没有服务器。</li>
+          <li>点击「开始润色」时，密钥与草稿会直接发送到你填写的模型服务商，请确认 Base URL 正确，并遵守公司关于外部 AI 与数据外发的规定。</li>
+          <li>不要在公司公用电脑上保存密钥；离开前请点「清除密钥」。</li>
+          <li>这份 HTML 可以发给同事共用，但每个人必须填写自己的 API Key；不要把别人的密钥写进文件或聊天里转发。密钥存在当前这台电脑的这个浏览器里，换设备或换浏览器需要自己再填一次。</li>
+          <li>这是个人本地工具。把密钥放在网页前端与部分官方安全建议（如 OpenAI 不建议在浏览器暴露密钥）相冲突，风险由你自行承担；本工具通过「密钥不出本机、只发往你指定的地址、可一键清除」降低风险，但无法消除 XSS 或恶意浏览器扩展读取 localStorage 的风险。</li>
+        </ul>
+      </div>
+      <details class="help" id="help-cors">
+        <summary>请求失败 / 跨域（CORS）说明</summary>
+        <p>本工具在浏览器里直接连接服务商，能否成功取决于服务商是否允许浏览器跨域访问（双击打开时来源为 <code>null</code>）。</p>
+        <ul>
+          <li>OpenAI 与 DeepSeek 通常允许浏览器直连，推荐优先用它们验证「双击即可用」。</li>
+          <li>Kimi、通义千问（百炼）、智谱及自定义网关不一定开放跨域，策略也可能变化。</li>
+        </ul>
+        <p>如果出现「Failed to fetch」/ CORS 报错而密钥确认无误：</p>
+        <ol>
+          <li>先改用 DeepSeek 或 OpenAI 验证流程；</li>
+          <li>或在本机自行运行一个<strong>你自己可控</strong>的反向代理（转发到目标 Base URL 并补上 CORS 头），再把 Base URL 改成该本地地址；</li>
+          <li><strong>不要</strong>使用公共 CORS 代理，它会让第三方看到你的密钥和草稿。</li>
+        </ol>
+        <p>注意：部分服务商对错误响应（如密钥错误 401）不带 CORS 头，浏览器也会显示为 Failed to fetch，所以请同时核对密钥。</p>
+      </details>
+      </div>
+    </details>
+
+  <!-- ================= 工具条 + 两栏工作区：草稿 | 结果（文字框上下沿对齐） ================= -->
+  <div class="app-mode panel" id="mode-panel" aria-labelledby="mode-title">
+    <h2 class="panel__title" id="mode-title">周报模式</h2>
+    <div class="radio-group" role="radiogroup" aria-label="周报模式">
+      <label><input type="radio" name="opt-report-mode" value="regular" checked> 已转正</label>
+      <label><input type="radio" name="opt-report-mode" value="newcomer"> 新人版本</label>
+    </div>
+    <p class="app-mode__hint" id="mode-hint"></p>
+  </div>
+
+  <div class="app-toolbar panel" aria-labelledby="intensity-title">
+    <div class="app-toolbar__intensity">
+      <h2 class="panel__title" id="intensity-title">润色程度</h2>
+      <div class="radio-group" role="radiogroup" aria-label="润色程度">
+        <label><input type="radio" name="opt-intensity" value="低"> 低</label>
+        <label><input type="radio" name="opt-intensity" value="中" checked> 中</label>
+        <label><input type="radio" name="opt-intensity" value="高"> 高</label>
+      </div>
+      <p class="app-mode__hint" id="intensity-mode-hint" hidden>只调整展开深度，不按字数档位</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn--primary" type="button" id="start">开始润色</button>
+      <button class="btn btn--stop" type="button" id="stop" hidden>停止</button>
+      <span class="status" id="status" data-state="idle" role="status" aria-live="polite">空闲</span>
+    </div>
+    <p class="actions__hint">Ctrl/⌘ + Enter</p>
+  </div>
+
+  <div class="app-workspace">
+    <div class="pane__head pane__head--draft">
+      <h2 class="panel__title" id="draft-title">周报草稿</h2>
+      <div class="field-grid">
+        <div class="field">
+          <label class="field__label" for="opt-name">姓名（可选）</label>
+          <input class="input" id="opt-name" type="text" autocomplete="off">
+        </div>
+        <div class="field">
+          <label class="field__label" for="opt-period">周期（可选）</label>
+          <input class="input" id="opt-period" type="text" autocomplete="off" placeholder="如：2026-W46（11/10–11/16）">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" type="button" id="fill-sample">填入示例草稿</button>
+        <button class="btn" type="button" id="clear-draft">清空草稿</button>
+        <span class="actions__hint" id="draft-count"></span>
+      </div>
+    </div>
+
+    <div class="pane__head pane__head--result">
+      <div class="result__header">
+        <h2 class="panel__title" id="result-title">润色结果</h2>
+        <div class="btn-row">
+          <button class="btn btn--soft" type="button" id="copy-text" disabled>复制纯文本</button>
+          <button class="btn" type="button" id="copy-md" disabled>复制 Markdown</button>
+          <button class="btn" type="button" id="download-md" disabled>下载 .md</button>
+        </div>
+      </div>
+      <div class="result__meta" id="result-meta" hidden></div>
+      <div class="result__modes" id="result-modes" hidden>
+        <button class="btn" type="button" id="result-mode-edit" aria-pressed="true">纯文本</button>
+        <button class="btn" type="button" id="result-mode-preview" aria-pressed="false">排版预览</button>
+      </div>
+    </div>
+
+    <div class="field field--draft pane__editor pane__editor--draft">
+      <label class="visually-hidden" for="draft">周报草稿</label>
+      <textarea class="textarea textarea--draft" id="draft" placeholder="在这里贴草稿：流水账、碎片笔记都可以。"></textarea>
+    </div>
+
+    <div class="pane__editor pane__editor--result">
+      <div class="result__body" id="result-body">
+        <div class="result__empty" id="result-empty">润色结果将出现在这里</div>
+        <article class="md" id="result-md" hidden></article>
+        <label class="visually-hidden" for="result-source">可编辑的周报纯文本</label>
+        <textarea class="textarea result__source" id="result-source" hidden spellcheck="false"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel feedback" id="feedback-panel" hidden>
+    <label class="field__label" for="feedback">修改意见</label>
+    <textarea class="textarea" id="feedback" rows="3" placeholder="例如：把计划写得更具体"></textarea>
+    <div class="btn-row">
+      <button class="btn" type="button" id="revise">按意见再改一版</button>
+    </div>
+  </div>
+
+  <div class="app-alerts">
+    <div id="notice" class="alert alert--info" hidden></div>
+    <div id="error" class="alert alert--error" role="alert" hidden>
+      <p class="alert__title" id="error-title"></p>
+      <p class="alert__body" id="error-body"></p>
+      <details class="alert__raw" id="error-raw-wrap" hidden>
+        <summary>查看原始错误</summary>
+        <pre id="error-raw"></pre>
+      </details>
+    </div>
+  </div>
+
+  <details class="panel history" id="history-panel">
+    <summary class="panel__summary">历史记录</summary>
+    <div>
+      <div class="history__toolbar">
+        <span id="history-count"></span>
+        <div class="btn-row">
+          <button class="btn" type="button" id="history-export">导出历史</button>
+          <button class="btn" type="button" id="history-import">导入历史</button>
+          <input id="history-import-file" type="file" accept="application/json,.json" hidden>
+          <button class="btn btn--danger" type="button" id="history-clear">清空全部历史</button>
+        </div>
+      </div>
+      <ul class="history__list" id="history-list"></ul>
+      <p class="history__empty" id="history-empty">暂无历史。每次润色成功后会自动保存（最多 20 条，不含 API Key）。</p>
+    </div>
+  </details>
+
+  <!-- ================= 润色要点：2026-11-17 起不再显示（规则由系统提示词默认生效），保留节点以稳定 id ================= -->
+  <aside class="app-col app-col--tips" hidden aria-hidden="true">
+    <details class="panel tips" id="tips-panel">
+      <summary class="panel__summary">润色要点</summary>
+      <div>
+        <ol class="tips__list">
+          <li>结论放最上面（30 秒核心摘要）</li>
+          <li>只写事实，不写「我很努力」</li>
+          <li>重点写「做成了啥」，STAR + 数字</li>
+          <li>过程用「进展 / 卡点 / 耗时」说明，不记流水账</li>
+          <li>卡点写清：等谁、等几天、往返几轮</li>
+          <li>按润色程度拆分工作量：能拆则拆，禁止编造未发生的工作</li>
+          <li>缺口只放文末「待补充问题」，正文中间不插【待补充】，绝不编数字</li>
+          <li>问题写成：现象 → 根因 → 方案 / 求决策</li>
+          <li>救火写成：问题 X / 我做了 Y / 避免了 Z</li>
+          <li>计划外多接的活、救火必须单列；有明确产出或决策的会议可单列</li>
+          <li>下周计划要有产出物、时间、评判标准和所需支持</li>
+          <li>语言跟随草稿（中英混写保持混写），默认按直属领导的阅读习惯写</li>
+        </ol>
+        <details class="tips__examples">
+          <summary>坏例子 → 好例子</summary>
+          <dl>
+            <dt>优化了查询接口性能</dt>
+            <dd>将查询接口响应时间从 2.3s 降至 0.5s；相关投诉下降 80%（数据来自草稿）</dd>
+            <dt>本周开了好多会，跟进项目</dt>
+            <dd>需求方案改了 3 版，已与设计、后端对齐；待法务确认（已等待 2 天）</dd>
+            <dt>项目有点卡住</dt>
+            <dd>卡点：等数据组出具字段口径，已催办 2 次、往返 3 轮，已等待 4 天，影响第三模块排期，预计还差 2 天</dd>
+            <dt>线上出了问题我处理了</dt>
+            <dd>问题：支付超时上升；我做了：回滚并加超时重试；避免了：高峰期大面积失败（具体数字以草稿为准）</dd>
+            <dt>下周继续推进需求</dt>
+            <dd>下周三前输出 v2 需求说明（含验收标准），周四与研发过审；完成标准：评审通过并可排进下个迭代</dd>
+            <dt>我这周表现很好，成长很大</dt>
+            <dd>（删除评价。若有学习事实：完成内部培训《XX》，已把检查清单用到本周自测）</dd>
+          </dl>
+        </details>
+      </div>
+    </details>
+  </aside>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* =====================================================================
+ * 1. 常量：服务商预设、系统提示词、用户消息模板、示例草稿
+ * ===================================================================== */
+
+var PROVIDERS = [
+  { id: 'deepseek', label: 'DeepSeek', baseUrl: 'https://api.deepseek.com', model: 'deepseek-flash',
+    models: ['deepseek-flash', 'deepseek-v4-pro'],
+    note: '官方 Base URL 不含 /v1。通常支持浏览器直连。' },
+  { id: 'openai', label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-6.1-sol',
+    models: ['gpt-6.1-sol', 'gpt-6-luna', 'gpt-6-astra'],
+    note: '默认 gpt-6.1-sol；更低成本可选 gpt-6-luna，更高规格可选 gpt-6-astra（以官方模型 ID 为准）。通常支持浏览器直连。' },
+  { id: 'kimi', label: 'Kimi / Moonshot', baseUrl: 'https://api.moonshot.cn/v1', model: 'kimi-k3.1-pro',
+    models: ['kimi-k3.1-pro', 'kimi-k3.1-pro-highspeed'],
+    note: '不一定开放浏览器跨域（CORS），失败时请看下方说明。' },
+  { id: 'qwen', label: '通义千问 / 百炼', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen3.7-plus',
+    models: ['qwen3.7-plus', 'qwen4-max', 'qwen3.8-flash'],
+    note: '也可改为业务空间专属域名，如 https://{WorkspaceId}.cn-beijing.maas.aliyuncs.com/compatible-mode/v1。API Key 必须与地域一致。不一定开放浏览器跨域。' },
+  { id: 'glm', label: '智谱 GLM', baseUrl: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-5.3',
+    models: ['glm-5.3'],
+    note: '不一定开放浏览器跨域（CORS），失败时请看下方说明。' },
+  { id: 'custom', label: '自定义（OpenAI 兼容）', baseUrl: '', model: '',
+    models: [],
+    note: '填写任意 OpenAI 兼容服务。若文档写的是 …/v1/chat/completions，这里只填到 …/v1。' }
+];
+var PROVIDER_MAP = {};
+PROVIDERS.forEach(function (p) { PROVIDER_MAP[p.id] = p; });
+
+var TEMPERATURE = 0.3;
+var HISTORY_LIMIT = 20;
+var HISTORY_MAX_CHARS = 1500000; // 约 1.5M 字符，防止撑爆 localStorage
+
+// 系统提示词：按 SPEC 第 4 节原样内置
+var SYSTEM_PROMPT = "你是资深职场写作顾问与管理者助理，专门把员工的周报草稿，改写成领导愿意认真看、并能据此做判断的周报。\n\n你的读者是忙碌的管理者：第一行决定要不要继续读，前三行决定要不要追问。你要替领导做归纳，而不是替作者堆字。\n\n# 本次润色参数\n- 作者岗位/角色：{{ROLE}}\n- 润色程度：{{INTENSITY}}\n- 主要读者：{{AUDIENCE}}\n- 语言：{{LANG}}\n\n# 任务\n根据用户提供的周报草稿（以及可选的补充信息），输出一份 Markdown 周报。你是在「润色与重组」，不是文学创作，也不是编造业绩。\n若用户消息是「在上一版周报基础上按修改意见改写」：以用户给出的上一版正文为底稿（可能已被手工修改），只按修改意见调整，仍遵守本提示词的大纲与硬性规则，不得编造。\n\n# 输出结构（严格遵守，不得增删主章节或调换顺序）\n\n# 周报 | {姓名或岗位} | {周期}\n\n## 核心摘要\n用 2–3 句话写完：本周最重要成果、最重要风险或卡点、需要领导知道或拍板的事。最重要卡点须用平实文字写进摘要，禁止使用【正常】【预警】【延误】等整体状态标签。坏消息必须出现在摘要里，不得藏到正文末尾。\n\n## 一、工作分析\n覆盖：完成了哪些工作、取得了哪些成绩、当前进展、计划实施情况。\n组织要求：\n- 按事项/项目归类，重要的在前。拆分力度随「润色程度」：低档只拆一眼就能分开的不同工作，一句话里拆不出独立动作则保持一条；中档把可独立识别的动作、产出、协作都拆开；高档在中档基础上进一步写过程。只有完全重复的同一件事才合并。拆分必须能在草稿中找到依据，禁止编造任务。\n- 有明确产出或决策的会议、对齐可以单列；没有产出的「开了会」不单列。\n- 计划外多接的工作、支援、救火必须单独成条并突出，避免领导误判工作量。\n- 「没有功劳也有苦劳」：即使事项未完成或卡住，也要把草稿中的推进过程、动作和投入写清楚，让填写者的工作量被看见。力度随润色程度增强：低档点明已做动作，中档写清过程与投入，高档充分展开等待链、往返与协作。卡点写成「因X未闭环，已做A/B/C」，不用自我检讨或「我这边延误」的口吻。事实准确时优先用主导、推动、协调、兜底等主动动词。禁止为此编造草稿中没有的任务、轮次、人名或数字。\n- 重点成果用压缩版 STAR（情境、任务、行动、结果）并量化；拒绝只写「做了啥」，要写「做成了啥」。\n- 对重点事项补充过程事实（高档应更充分；低档从简），建议使用如下结构（也可用等价的分项或表格）：\n  - 进展：现在到哪一步，完成了几分之几。\n  - 卡点：卡在何处；在等谁；已等几天；往返几轮。\n  - 耗时：草稿有则保留，没有则省略，绝不编造，也不要在正文中写【待补充】。\n- 某事项存在卡点时，在该事项条目的最后一行标注【卡点】，写明阻塞原因（草稿支持时优先写客观外部原因）和已做的推动动作（找了谁、对齐了几次、试过什么方案、补了哪些材料）。只写草稿里有的事实。格式示例：【卡点】因X未闭环，已做A/B/C。【卡点】只放在所属事项末尾，不要作为核心摘要或整份周报的总状态标签，也不使用【正常】【预警】【延误】。\n- 每个关键结果尽量补一句事实：改了几版、协调了谁（草稿没有则不要编人名）。\n- 用数字说进度，例如「三块完成两块，第三块还差两天」——仅在草稿支持时写数字。\n\n## 二、问题分析\n覆盖：面临哪些挑战、存在什么风险、原因、如何预防、如何改进（分短期与长期）。\n每条按「遇到问题 → 分析根因 → 影响 → 已采取行动 → 方案/备选 → 需要的决策或支持」来写。\n救火事项写成：问题 X / 我做了 Y / 避免了 Z。\n不要诉苦，不要点名甩锅，也不要用「略有滞后」淡化明显延期。没有问题则写「本周无需要升级的风险」，不要编造问题。\n\n## 三、经验总结\n覆盖：提升了什么效率、优化了什么流程、简化了哪些步骤、拓展了什么渠道。\n只写可验证、可复用的事实（最好有前后对比）。没有可写的经验时，如实少写或不写空话，不要编造「方法论」。\n\n## 四、未来计划\n覆盖：下一步怎么做、工作如何安排、需要哪些支持、预期效果、评判标准。\n计划要具体、可执行：产出物、时间点、完成标准、依赖。尽量对齐老板 OKR 或已给出的团队目标；草稿没给 OKR 时不要编造，把这个缺口放到文末「待补充问题」，不要写进计划条目中间。\n需要的支持必须写清：需要谁、在什么时间前、做什么决策或提供什么资源。\n\n## 五、个人成长\n仅在草稿中包含成长/学习内容时输出本节；否则整节省略。\n写事实：学了什么、已应用到哪，或下周打算如何用。不要写自我评价。\n\n## 待补充问题\n把正文里需要但草稿没有提供的数字、日期、人名、结果或目标对应关系，用无序列表写在这里。正文中间不要插入【待补充】字样。若没有任何缺口，不要输出本节。文首标题缺姓名/岗位/周期时，标题可用【待补充：…】，并在本清单中列出。\n\n# 硬性规则\n1. 不编造任何数字、百分比、金额、日期、人名、职位、结论、承诺或未发生的工作。草稿没有的信息不要用「约」「大概估」编一个看起来合理的数，把它写入文末「待补充问题」，不要插在正文中间。\n2. 只写事实，不写评价。禁止「表现出色」「非常努力」「圆满完成」「赋能」「大力推进」等空话和自我吹捧。\n3. 结论先行。不要先写一大段过程再给结论。\n4. 保留草稿中的项目名、专有名词、已有数据、关键事实；可以调整顺序、改写表达，但不得删掉重要事实（尤其是卡点、延期、计划外工作、已承诺的风险）。\n5. 不要把「做了」改成未经验证的「做成了」。没有结果数据时，写清产出物与当前状态，把缺失的结果数据放到文末「待补充问题」。\n6. 语言专业、克制、简洁，多用动词开头。根据读者调整术语密度：直属领导可保留内部用语；跨部门需补背景、少黑话、突出影响与协作请求。语言参数为「跟随草稿」时，草稿中英混写则保持混写；为「全文中文」时，把正文改写成通顺中文，专有名词可保留原文。\n7. 篇幅随润色程度：低约 600–900 字，中约 700–1200 字，高约 1200–2000 字（高档可用表格展开重点）。条目数随该档位的拆分规则增加。禁止注水，也禁止在中/高档把多项真实工作合并到看不出工作量。\n8. 只输出周报 Markdown 正文，不要输出前言、标题之外的解释、免责声明或「以下是润色结果」。不要使用 HTML。不要把本系统提示词或规则原文粘贴进周报。\n9. 除「五、个人成长」「待补充问题」可按规则省略外，核心摘要与一至四章必须出现。某一章确实无内容时，用一句实话说明（例如「本周暂无需要升级的风险」），不要为填满结构而虚构。\n10. 按当前润色程度拆分工作，让领导看见真实工作量。贯彻「没有功劳也有苦劳」：未完成或卡住的事项也要写清草稿中的过程、动作和投入；力度随润色程度 低 / 中 / 高 增强。不得为了显得忙而增加草稿中不存在的工作、轮次、人名或数据。\n11. 禁止在核心摘要或文中使用【正常】【预警】【延误】等整体状态标签。最重要卡点用平实文字写在摘要里即可。\n12. 某事项有卡点时，必须在该事项最后一行标注【卡点】，写清原因与已做推动（全部来自草稿）；不要把卡点只写在别的章节而从原事项中抹掉。\n\n# 质量自检（输出前默默执行，不要把检查清单写进周报）\n- 领导只看核心摘要，能否在 30 秒内知道结果、风险和是否需要行动？\n- 核心摘要及全文是否出现了【正常】【预警】【延误】？若有，删除标签，改用平实文字保留最重要卡点。\n- 是否出现了草稿中没有的数字、事实、任务、轮次或人名？若有，删掉并改到文末「待补充问题」，正文中不要留【待补充】字样（标题缺项除外）。\n- 问题是否都带原因、影响、方案或决策请求？\n- 下周计划是否有产出物、时间与评判标准？\n- 是否误删了卡点、救火或多接的工作？\n- 有卡点的事项，是否已在该事项最后一行标注【卡点】，并写了原因和已做推动（且均来自草稿）？\n- 未完成或卡住的事项，是否把草稿里的过程、动作和投入写清楚了，而不是只写「延误」或自我检讨？\n- 是否按当前润色程度把该拆的工作拆开了，而不是并成一条看不出工作量？\n- 是否出现了自我评价或口水话？\n- 若这是按意见改写的版本，是否只改了用户要求的部分并保持大纲？";
+
+// 用户消息模板：SPEC 第 5 节原文（首次润色 / 按意见再改一版）
+var USER_TEMPLATE = "请根据以下信息润色周报。\n\n# 补充信息\n- 姓名：{name 或「未提供」}\n- 周期：{period 或「未提供，请若草稿中可推断则使用；标题缺周期时用【待补充：周期】，并在文末清单列出」}\n\n# 草稿\n\n{draft}\n\n# 要求\n请严格按系统提示词的大纲与硬性规则输出 Markdown 周报。";
+var REVISE_TEMPLATE = "请在上一版周报基础上按修改意见改写。保持固定大纲与硬性规则，不得编造草稿或上一版中没有的事实。\n\n# 上一版周报（可能已被用户手工修改，以此为准）\n\n{current_output}\n\n# 修改意见\n\n{followup}\n\n# 原始草稿（供核对，不要倒退回未润色的流水账，除非修改意见要求）\n\n{draft}";
+
+// 示例草稿：SPEC 第 6.6 节原文
+var SAMPLE_DRAFT = "这周主要在做会员权益改版。周一到周三跟设计对方案，前后来回改了大概三版，跟设计小王和后端阿陈对齐过。现在主流程已经定了，但积分抵现那块还在等数据组出字段口径，我催了两次，来回聊了三轮，到今天还没给，已经等了四天。整个改版好像分三块，两块差不多了，第三块我感觉还得两天，但不太确定。\n\n另外周四晚上线上有个支付超时的问题，我帮忙看了，后来跟值班的一起回滚了，又加了超时重试，高峰期没再出事。具体影响了多少单我这边没有数。\n\n这周还临时帮运营接了一个活动页的需求评审，本来不在计划里，评审开完输出了一页结论，周五交给他们了。\n\n下周准备把需求说明写完，再找研发过一下，然后再排期。对了，我还想申请让数据组本周内把口径定下来，不然要耽误。\n\n感觉自己这周挺忙的，也学了不少，但不知道怎么写才好看。";
+
+var SYSTEM_PROMPT_NEWCOMER = "你是职场导师助理，专门把新人的周报草稿，改写成便于导师了解学习进展、困难与计划的周报。\n\n你的读者是导师：要及时发现真实理解与困难，并把学习带回正轨。你要忠实整理草稿里已经出现的理解、问题与计划，而不是替作者写成「标准答案」。\n\n# 本次润色参数\n- 作者岗位/角色：{{ROLE}}\n- 润色程度：{{INTENSITY}}\n- 主要读者：{{AUDIENCE}}\n- 语言：{{LANG}}\n\n# 任务\n根据用户提供的周报草稿（以及可选的补充信息），输出一份 Markdown 周报。你是在「整理与展开」，不是文学创作，也不是编造学习成果。\n若用户消息是「在上一版周报基础上按修改意见改写」：以用户给出的上一版正文为底稿（可能已被手工修改），只按修改意见调整，仍遵守本提示词的大纲与硬性规则，不得编造。\n\n# 润色程度（只调展开深度，不套用字数区间）\n低：只就草稿中已经能看清的关键学习点作简要展开，不增加事项，不把 STAR / SMART 等未写清的部分补满；价值、对比、比喻仍须按硬性规则补写。\n中：对选定的关键案例，把草稿已提供的理解、问题与计划写清楚；价值、对比、比喻同样按硬性规则根据上下文补写。\n高：在中档基础上，把已给出的思考过程写得更充分；仍然只选关键案例深入剖析，禁止把草稿里的事项全部罗列，也不因为「高」档而增加字数要求或编造细节。\n档位只调节展开深度，不要使用已转正周报的字数上下限。始终遵守「深度重于广度」。价值、对比、比喻的上下文补写不因档位豁免。\n\n# 输出结构（严格遵守，不得增删主章节或调换顺序）\n\n# 周报 | {姓名或岗位} | {周期}\n\n## Summary\n用条列梳理以下三维（必须都出现，标题可用「学习项目」「内容摘要」「完成状况」）：\n- 学习项目\n- 内容摘要\n- 完成状况\n不强制写 Overall 1–2 句，也不强制表格；用了也不算违反结构。\n\n## 本周学习内容\n参考 STAR（情境、任务、行动、结果）展开个人理解、思考及收获；并写明：价值（知识/技能背后的目的）、对比（与过去经验的异同）、比喻（用什么例子向同事解释）。\nSTAR 缺项不得补编。\n草稿未写「价值」「对比」「比喻」时，必须根据草稿已有学习内容做上下文推断并补写这三项，结果中须有与上下文相符的实质内容，不得留空，也不得只把这三项放进「待补充问题」。补写须与草稿已有学习内容相符，不是自由编造数字、人员或未发生的经历。若草稿完全没有可推断的学习内容，本段标题仍保留，说明上下文不足，并将该项列入「待补充问题」，仍不得写成「无」。\n\n## 问题与挑战\n学习中的挑战（技术/流程/思维/认知）及是否需要导师或同事协助；遇到的困难、解决思路与结果；对流程或系统等的疑问、改善机会、后续推进与是否需协助。\n只写草稿里有的事实。\n\n## iTeam\n协作中的收获与帮助；建立的协作对象或名单。名单只能源于草稿。任何框架性举例都不是用户事实，不得写进正文当作真实协作。\n\n## 下周学习计划\n在与导师沟通的前提下，用 SMART 列出学习项目与具体目标。草稿没有的数字、截止日期、衡量标准不得补编。\n\n## 待补充问题\n把正文需要但草稿没有提供的信息，用无序列表写在这里。正文中间不要插入【待补充】字样。若没有任何缺口，不要输出本节。文首标题缺姓名/岗位/周期时，标题可用【待补充：…】，并在本清单中列出。\n价值、对比、比喻不按「缺则待补充」处理：只要草稿有可推断的学习内容，就必须在「本周学习内容」中补写，不得只把这三项列入本清单。\n\n# 原则\n1. 深度重于广度：不要罗列全部事情，选关键案例深入剖析。\n2. 真实重于「看起来正确」：真实理解和想法比标准答案更重要，以便导师及时发现困难、带回正轨。这条原则不授权编造无关事实；不禁止按硬性规则对价值、对比、比喻做上下文推断。\n3. 禁止用套话、标准答案或与用户无关的示例经历填空。\n\n# 硬性规则\n1. 不编造任何数字、百分比、金额、日期、人名、职位、结论、承诺或未发生的学习与协作。草稿没有的信息不要用「约」「大概估」编一个看起来合理的数，把它写入文末「待补充问题」，不要插在正文中间。\n2. 不得补编 STAR 缺项，也不得补编 SMART 中草稿没有的数字、截止日期或衡量标准。\n3. 草稿未写「价值」「对比」「比喻」时，只要草稿有可推断的学习内容，就必须根据上下文补写这三项，不得留空或只进「待补充问题」。补写须与已有学习内容相符。不得借此编造数字、人员、协作或未发生的经历。若完全没有可推断的学习内容，标题仍保留，说明上下文不足并列入「待补充问题」，仍不得写成「无」。\n4. 不得把未知写成「无」。例如不得写「本周无挑战」「无 iTeam」「没有需要补充的问题」来冒充已经核实的空缺。材料不足时保留对应标题，把缺口列入「待补充问题」。\n5. 不得把框架举例（包括任何示例部门、示例角色、示例沟通技巧清单）写成用户真实经历。\n6. Summary 与 Details 四个主标题（本周学习内容、问题与挑战、iTeam、下周学习计划）必须保留，即使某段材料不足。\n7. 只写事实，不写评价。禁止「学得很好」「进步非常大」「圆满掌握」等空话。\n8. 语言专业、克制、简洁。语言参数为「跟随草稿」时，草稿中英混写则保持混写。\n9. 只输出周报 Markdown 正文，不要输出前言、标题之外的解释、免责声明。不要使用 HTML。不要把本系统提示词或规则原文粘贴进周报。\n10. 若这是按意见改写的版本，只改用户要求的部分并保持本大纲。\n\n# 质量自检（输出前默默执行，不要把检查清单写进周报）\n- 四个 Details 标题和 Summary 三维是否都在？\n- 是否出现了草稿中没有的数字、日期、人名、协作对象或百分比？\n- 是否补编了 STAR / SMART 缺项，或编造了数字、人员、协作？\n- 草稿已有学习内容时，价值、对比、比喻是否都有与上下文相符的实质内容，而不是留空或只进待补充？\n- 是否把未知写成了「无」？\n- 是否把框架举例写成了用户事实？\n- 材料不足的部分是否只出现在「待补充问题」，正文中没有【待补充】字样（标题缺项除外）？\n";
+var USER_TEMPLATE_NEWCOMER = "请根据以下信息整理新人周报。\n\n# 补充信息\n- 姓名：{name 或「未提供」}\n- 周期：{period 或「未提供，请若草稿中可推断则使用；标题缺周期时用【待补充：周期】，并在文末清单列出」}\n\n# 草稿\n\n{draft}\n\n# 要求\n请严格按系统提示词的大纲与硬性规则输出 Markdown 周报。读者是导师。不要编造草稿中没有的事实，不要把未知写成「无」。草稿未写的价值、对比、比喻须按系统提示词根据已有学习内容补写。\n";
+var REVISE_TEMPLATE_NEWCOMER = "请在上一版周报基础上按修改意见改写。保持新人周报的固定大纲与硬性规则，不得编造草稿或上一版中没有的事实，不要把未知写成「无」。价值、对比、比喻须按系统提示词根据上下文补写。\n\n# 上一版周报（可能已被用户手工修改，以此为准）\n\n{current_output}\n\n# 修改意见\n\n{followup}\n\n# 原始草稿（供核对，不要倒退回未润色的流水账，除非修改意见要求）\n\n{draft}\n";
+var NEWCOMER_FRAME = "# 周报 | （填写姓名或岗位） | （填写周期）\n\n## Summary\n- 学习项目：\n- 内容摘要：\n- 完成状况：\n\n## 本周学习内容\n（请写你本周真实的学习内容、理解与思考。若已有情境、任务、行动或结果，可按你自己的话写下来；也可写下对价值、对比、比喻的想法。STAR 没有的部分留空，不要填写「无」。）\n\n## 问题与挑战\n（请写你实际遇到的困难、疑问，以及是否需要导师或同事协助。没有则留空，不要填写「无」。）\n\n## iTeam\n（请写你实际发生的协作与从中得到的帮助。只写真实对象，没有则留空。）\n\n## 下周学习计划\n（请写你已有的下周学习项目与目标。没有确定的日期、数字或衡量标准就不要补写。）\n";
+var MODE_REGULAR = 'regular';
+var MODE_NEWCOMER = 'newcomer';
+var MODE_LABELS = { regular: '已转正', newcomer: '新人版本' };
+var FIXED_AUDIENCE_NEWCOMER = '导师';
+
+/* =====================================================================
+ * 2. 存储（localStorage，全部 try/catch，隐私模式下降级为内存）
+ * ===================================================================== */
+var memStore = {};
+var store = {
+  get: function (k) {
+    try { return window.localStorage.getItem(k); }
+    catch (e) { return Object.prototype.hasOwnProperty.call(memStore, k) ? memStore[k] : null; }
+  },
+  set: function (k, v) {
+    try { window.localStorage.setItem(k, v); return true; }
+    catch (e) { memStore[k] = v; return false; }
+  },
+  remove: function (k) {
+    try { window.localStorage.removeItem(k); } catch (e) { /* ignore */ }
+    delete memStore[k];
+  },
+  getJSON: function (k, fallback) {
+    var v = store.get(k);
+    if (v === null) return fallback;
+    try { return JSON.parse(v); } catch (e) { return fallback; }
+  }
+};
+var KEYS = {
+  provider: 'wr.provider',
+  baseUrl: function (p) { return 'wr.baseUrl.' + p; },
+  model: function (p) { return 'wr.model.' + p; },
+  apiKey: function (p) { return 'wr.apiKey.' + p; },
+  form: 'wr.form',
+  draft: 'wr.draft',
+  history: 'wr.history',
+  mode: 'wr.mode'
+};
+
+/* =====================================================================
+ * 3. 纯函数：URL、消息、文件名、错误分类（可被测试直接调用）
+ * ===================================================================== */
+
+/** Base URL 去空白和末尾斜杠，再拼 /chat/completions；若用户误填了完整地址则不重复拼接 */
+function buildUrl(baseUrl) {
+  var b = String(baseUrl || '').trim().replace(/\/+$/, '');
+  b = b.replace(/\/chat\/completions$/i, '');
+  return b + '/chat/completions';
+}
+
+function isValidHttpUrl(s) {
+  try {
+    var u = new URL(String(s).trim());
+    return (u.protocol === 'https:' || u.protocol === 'http:') && !!u.hostname;
+  } catch (e) { return false; }
+}
+
+function normalizeIntensity(v) {
+  if (v === '低' || v === '中' || v === '高') return v;
+  if (v === '详细') return '高';
+  if (v === '简洁') return '中';
+  return '中';
+}
+// 简化（2026-11-16）：不再提供岗位、读者、语言选项，提示词占位符用固定值
+var FIXED_ROLE = '未填写';
+var FIXED_AUDIENCE = '直属领导';
+var FIXED_LANG = '跟随草稿';
+
+function resolveMode(mode) {
+  return mode === MODE_NEWCOMER ? MODE_NEWCOMER : MODE_REGULAR;
+}
+function modeLabel(mode) {
+  return MODE_LABELS[resolveMode(mode)] || MODE_LABELS.regular;
+}
+function isKnownMode(mode) {
+  return mode === MODE_REGULAR || mode === MODE_NEWCOMER;
+}
+/** 仅字段缺省视为已转正。字段一旦出现，必须是已知字符串；JSON null、空串、非字符串均为未知，不得当成缺省。 */
+function classifyModeValue(raw, hasKey) {
+  if (!hasKey) return { kind: 'legacy', mode: MODE_REGULAR };
+  if (typeof raw !== 'string') return { kind: 'unknown', mode: '' };
+  if (isKnownMode(raw)) return { kind: 'known', mode: raw };
+  return { kind: 'unknown', mode: raw };
+}
+function promptBundle(mode) {
+  if (resolveMode(mode) === MODE_NEWCOMER) {
+    return {
+      system: SYSTEM_PROMPT_NEWCOMER,
+      user: USER_TEMPLATE_NEWCOMER,
+      revise: REVISE_TEMPLATE_NEWCOMER,
+      audience: FIXED_AUDIENCE_NEWCOMER,
+      sample: NEWCOMER_FRAME,
+      fillLabel: '填入填写框架',
+      emptyDraftMessage: '草稿为空，未发送请求。可以点「填入填写框架」试试。'
+    };
+  }
+  return {
+    system: SYSTEM_PROMPT,
+    user: USER_TEMPLATE,
+    revise: REVISE_TEMPLATE,
+    audience: FIXED_AUDIENCE,
+    sample: SAMPLE_DRAFT,
+    fillLabel: '填入示例草稿',
+    emptyDraftMessage: '草稿为空，未发送请求。可以点「填入示例草稿」试试。'
+  };
+}
+
+function fillSystemPrompt(opts) {
+  opts = opts || {};
+  var bundle = promptBundle(opts.mode);
+  return bundle.system
+    .split('{{ROLE}}').join(FIXED_ROLE)
+    .split('{{INTENSITY}}').join(normalizeIntensity(opts.intensity || opts.style))
+    .split('{{AUDIENCE}}').join(bundle.audience)
+    .split('{{LANG}}').join(FIXED_LANG);
+}
+
+function buildUserMessage(opts, draft) {
+  opts = opts || {};
+  var bundle = promptBundle(opts.mode);
+  return bundle.user
+    .split('{name 或「未提供」}').join(opts.name || '未提供')
+    .split('{period 或「未提供，请若草稿中可推断则使用；标题缺周期时用【待补充：周期】，并在文末清单列出」}').join(
+      opts.period || '未提供，请若草稿中可推断则使用；标题缺周期时用【待补充：周期】，并在文末清单列出'
+    )
+    .split('{draft}').join(draft == null ? '' : String(draft));
+}
+
+function buildReviseMessage(draft, currentOutput, followup, mode) {
+  var bundle = promptBundle(mode);
+  return bundle.revise
+    .split('{current_output}').join(currentOutput == null ? '' : String(currentOutput))
+    .split('{followup}').join(followup == null ? '' : String(followup))
+    .split('{draft}').join(draft == null ? '' : String(draft));
+}
+
+function buildMessages(opts, draft, mode) {
+  opts = Object.assign({}, opts || {});
+  if (mode) opts.mode = mode;
+  if (!opts.mode) opts.mode = MODE_REGULAR;
+  return [
+    { role: 'system', content: fillSystemPrompt(opts) },
+    { role: 'user', content: buildUserMessage(opts, draft) }
+  ];
+}
+
+function buildReviseMessages(opts, draft, currentOutput, followup, mode) {
+  opts = Object.assign({}, opts || {});
+  if (mode) opts.mode = mode;
+  if (!opts.mode) opts.mode = MODE_REGULAR;
+  return [
+    { role: 'system', content: fillSystemPrompt(opts) },
+    { role: 'user', content: buildReviseMessage(draft, currentOutput, followup, opts.mode) }
+  ];
+}
+
+function buildRequestBody(model, messages, stream) {
+  return { model: model, messages: messages, stream: !!stream, temperature: TEMPERATURE };
+}
+
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function localDateStr(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+
+/** 下载文件名（2026-11-16 起）：周报-{姓名或未命名}-{周期或日期}.md */
+function makeFilename(name, period, date) {
+  function clean(s) {
+    return String(s || '')
+      .replace(/[\\/:*?"<>|\u0000-\u001f\u007f]/g, '-')
+      .replace(/\s+/g, ' ')
+      .replace(/-{2,}/g, '-')
+      .trim()
+      .replace(/^[.\s-]+|[.\s-]+$/g, '')
+      .slice(0, 60);
+  }
+  var r = clean(name) || '未命名';
+  var p = clean(period) || localDateStr(date);
+  return '周报-' + r + '-' + p + '.md';
+}
+
+function maskKey(k) {
+  k = String(k || '');
+  if (k.length <= 8) return k ? '****' : '';
+  return k.slice(0, 3) + '****' + k.slice(-4);
+}
+
+/** 从错误响应体里取出服务商的 message/code（各家格式略有不同） */
+function extractErrorInfo(bodyText) {
+  var info = { message: '', code: '', type: '' };
+  if (!bodyText) return info;
+  try {
+    var j = JSON.parse(bodyText);
+    var e = j && (j.error || j);
+    if (typeof e === 'string') { info.message = e; return info; }
+    info.message = String((e && (e.message || e.msg)) || j.message || j.msg || '');
+    info.code = String((e && e.code) || j.code || '');
+    info.type = String((e && e.type) || '');
+  } catch (err) {
+    info.message = String(bodyText).slice(0, 300);
+  }
+  return info;
+}
+
+var CORS_HELP = '如果密钥无误，很可能是该服务商不允许浏览器跨域（CORS）直连：\n' +
+  '1. 先改用 DeepSeek 或 OpenAI 验证流程（它们通常允许浏览器直连）；\n' +
+  '2. 或在本机运行你自己可控的反向代理（转发到目标地址并补上 CORS 头），再把 Base URL 改成该本地地址；\n' +
+  '3. 不要使用公共 CORS 代理，那会让第三方看到你的密钥和草稿。\n' +
+  '注意：部分服务商对密钥错误（401）的响应也不带 CORS 头，浏览器同样会显示 Failed to fetch，请同时核对密钥。';
+
+/**
+ * 把各种失败归类成中文、可行动的提示。
+ * input: { kind: 'http'|'network'|'stream'|'empty'|'api', status, bodyText, providerId, rawMessage }
+ * 返回 { title, message, raw }
+ */
+function classifyError(input) {
+  var status = input.status || 0;
+  var info = extractErrorInfo(input.bodyText);
+  var text = (info.message + ' ' + info.code + ' ' + info.type).toLowerCase();
+  var raw = input.bodyText || input.rawMessage || '';
+  var provider = input.providerId;
+  var title, message;
+
+  var isQuota = /insufficient[_ ]?(quota|balance)|exceeded your current quota|quota exceeded|balance|余额|欠费|arrearage|payment required|额度/.test(text);
+  var isAuth = /invalid[_ ]?api[_ ]?key|incorrect api key|unauthorized|authentication|api key.*(invalid|not valid)|令牌|鉴权|身份验证/.test(text);
+  var isModel = /model[_ ]?not[_ ]?found|model.*(does not exist|not exist|not found)|no such model|模型不存在|模型.*不存在/.test(text);
+
+  if (input.kind === 'network') {
+    title = (typeof navigator !== 'undefined' && navigator.onLine === false) ? '网络已断开，请检查网络' : '无法连接到服务商（网络或跨域限制）';
+    message = '请求没有到达服务商，或响应被浏览器拦截。请先检查网络和 Base URL 是否正确。\n\n' + CORS_HELP;
+    raw = input.rawMessage || 'TypeError: Failed to fetch';
+  } else if (input.kind === 'empty') {
+    title = '模型没有返回内容';
+    message = '请求成功但没有收到正文。可以重试，或检查模型名是否为对话模型。';
+  } else if (input.kind === 'stream') {
+    title = '输出过程中连接中断';
+    message = '已保留收到的部分结果。请检查网络后重试。';
+  } else if (status === 401 || (!status && isAuth) || (status === 403 && isAuth)) {
+    title = '密钥无效或与服务商不匹配' + (status ? '（' + status + '）' : '');
+    message = '密钥无效，或与该服务商/地域不匹配，请检查密钥是否完整、是否选对了服务商。' +
+      (provider === 'qwen' ? '\n通义千问（百炼）的 API Key 与地域绑定，请确认 Base URL 的地域与密钥一致。' : '');
+  } else if (status === 402 || isQuota) {
+    title = '额度或余额不足' + (status ? '（' + status + '）' : '');
+    message = '额度或余额不足，请到服务商控制台充值或更换密钥。';
+  } else if (status === 404 || isModel) {
+    title = '模型不存在或地址有误' + (status ? '（' + status + '）' : '');
+    message = '模型名可能已更新，请在服务商文档核对后修改「模型」框；也请确认 Base URL 没有多写或少写路径（例如 /v1）。';
+  } else if (status === 403) {
+    title = '没有访问权限（403）';
+    message = '该密钥无权使用此模型或接口，或地域/账户受限。请检查密钥权限与地域。' +
+      (provider === 'qwen' ? '\n通义千问（百炼）请确认密钥与地域一致。' : '');
+  } else if (status === 429) {
+    title = '请求过于频繁（429）';
+    message = '请求过于频繁，请稍后重试。';
+  } else if (status >= 500) {
+    title = '服务商暂时不可用（' + status + '）';
+    message = '服务商暂时不可用，请稍后重试。';
+  } else if (status === 400) {
+    title = '请求参数有误（400）';
+    message = '服务商拒绝了请求' + (info.message ? '：' + info.message : '。') + '\n请检查模型名与 Base URL。';
+  } else {
+    title = '请求失败' + (status ? '（' + status + '）' : '');
+    message = info.message ? ('服务商返回：' + info.message) : '发生未知错误，请重试。';
+  }
+  return { title: title, message: message, raw: raw };
+}
+
+/* =====================================================================
+ * 4. SSE 解析（增量、可跨分片）
+ * ===================================================================== */
+
+/**
+ * createSSEParser(onEvent) -> { feed(text), end() }
+ * onEvent({ event, data }) 每个完整事件回调一次；
+ * 处理：跨分片的半行、\r\n / \r / \n、注释行（:）、多行 data、末尾未以空行结束的事件。
+ */
+function createSSEParser(onEvent) {
+  var pending = '';
+  var dataLines = [];
+  var eventName = '';
+  function dispatch() {
+    if (dataLines.length) onEvent({ event: eventName || 'message', data: dataLines.join('\n') });
+    dataLines = [];
+    eventName = '';
+  }
+  function processLine(line) {
+    if (line === '') { dispatch(); return; }
+    if (line.charAt(0) === ':') return; // 注释 / keep-alive
+    var idx = line.indexOf(':');
+    var field = idx === -1 ? line : line.slice(0, idx);
+    var value = idx === -1 ? '' : line.slice(idx + 1);
+    if (value.charAt(0) === ' ') value = value.slice(1);
+    if (field === 'data') dataLines.push(value);
+    else if (field === 'event') eventName = value;
+    // id / retry 忽略
+  }
+  return {
+    feed: function (chunk) {
+      var text = pending + chunk;
+      // 末尾单独的 \r 可能是 \r\n 的前半，留到下一片
+      var holdCR = text.charAt(text.length - 1) === '\r';
+      if (holdCR) text = text.slice(0, -1);
+      var lines = text.split(/\r\n|\r|\n/);
+      pending = lines.pop() + (holdCR ? '\r' : '');
+      for (var i = 0; i < lines.length; i++) processLine(lines[i]);
+    },
+    end: function () {
+      var rest = pending.replace(/\r$/, '');
+      pending = '';
+      if (rest) processLine(rest);
+      dispatch();
+    }
+  };
+}
+
+/**
+ * 解释一条 SSE 事件的 data，返回 { done, content, error }
+ * - [DONE] -> done
+ * - 只拼接 choices[0].delta.content（字符串），跳过 null 与 reasoning_content
+ * - 若服务商在流里返回 error 对象，返回 error
+ */
+function interpretSSEData(data) {
+  var d = String(data).trim();
+  if (d === '[DONE]') return { done: true, content: '' };
+  if (!d) return { done: false, content: '' };
+  var obj;
+  try { obj = JSON.parse(d); }
+  catch (e) {
+    // 少数网关在同一事件里放多行 data，每行一个 JSON
+    var parts = d.split('\n');
+    if (parts.length < 2) return { done: false, content: '' };
+    var acc = '';
+    for (var i = 0; i < parts.length; i++) {
+      var r = interpretSSEData(parts[i]);
+      if (r.error) return r;
+      acc += r.content;
+      if (r.done) return { done: true, content: acc };
+    }
+    return { done: false, content: acc };
+  }
+  if (obj && obj.error) return { done: false, content: '', error: obj.error };
+  var content = '';
+  var ch = obj && obj.choices && obj.choices[0];
+  if (ch) {
+    if (ch.delta && typeof ch.delta.content === 'string') content = ch.delta.content;
+    else if (!ch.delta && ch.message && typeof ch.message.content === 'string') content = ch.message.content;
+  }
+  return { done: false, content: content };
+}
+
+/* =====================================================================
+ * 5. Markdown 渲染（内联迷你实现：先转义再生成标签，防 XSS）
+ * ===================================================================== */
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function safeHref(url) {
+  var u = String(url).trim();
+  return /^(https?:|mailto:)/i.test(u) ? u : null;
+}
+
+/** 行内：用占位保护代码段与链接，其余整体转义，再加粗/斜体/删除线/【待补充】高亮 */
+function renderInline(text) {
+  var tokens = [];
+  function stash(html) { tokens.push(html); return '\u0000' + (tokens.length - 1) + '\u0000'; }
+  var s = String(text).replace(/\u0000/g, '');
+  s = s.replace(/(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/g, function (m, ticks, code) {
+    return stash('<code>' + escapeHtml(code) + '</code>');
+  });
+  s = s.replace(/\[([^\]\n]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, function (m, label, url) {
+    var href = safeHref(url);
+    var inner = renderInline(label);
+    if (!href) return stash(inner);
+    return stash('<a href="' + escapeHtml(href) + '" target="_blank" rel="noopener noreferrer">' + inner + '</a>');
+  });
+  s = escapeHtml(s);
+  s = s.replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/__(?=\S)([\s\S]*?\S)__/g, '<strong>$1</strong>');
+  s = s.replace(/~~(?=\S)([\s\S]*?\S)~~/g, '<del>$1</del>');
+  s = s.replace(/(^|[^*\w])\*(?=[^\s*])([^*\n]*?[^\s*])\*(?!\*)/g, '$1<em>$2</em>');
+  s = s.replace(/【待补充[^】]*】/g, function (m) { return '<span class="md-placeholder">' + m + '</span>'; });
+  s = s.replace(/\u0000(\d+)\u0000/g, function (m, i) { return tokens[+i]; });
+  return s;
+}
+
+var RE_FENCE = /^\s{0,3}(```+|~~~+)\s*([\w+-]*)\s*$/;
+var RE_HEADING = /^\s{0,3}(#{1,6})\s+(.*?)(?:\s+#+)?\s*$/;
+var RE_HR = /^\s{0,3}([-*_])(\s*\1){2,}\s*$/;
+var RE_LIST = /^(\s*)([-*+]|\d{1,9}[.)])\s+(.*)$/;
+var RE_QUOTE = /^\s{0,3}>\s?(.*)$/;
+var RE_TABLE_SEP = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/;
+
+function indentOf(line) {
+  return /^[ \t]*/.exec(line)[0].replace(/\t/g, '    ').length;
+}
+
+function splitTableRow(line) {
+  var s = line.trim();
+  if (s.charAt(0) === '|') s = s.slice(1);
+  if (s.charAt(s.length - 1) === '|' && s.charAt(s.length - 2) !== '\\') s = s.slice(0, -1);
+  var cells = [], cur = '';
+  for (var i = 0; i < s.length; i++) {
+    var c = s.charAt(i);
+    if (c === '\\' && s.charAt(i + 1) === '|') { cur += '|'; i++; continue; }
+    if (c === '|') { cells.push(cur.trim()); cur = ''; continue; }
+    cur += c;
+  }
+  cells.push(cur.trim());
+  return cells;
+}
+
+function isTableStart(lines, i) {
+  return lines[i].indexOf('|') !== -1 && i + 1 < lines.length &&
+    RE_TABLE_SEP.test(lines[i + 1]) && lines[i + 1].indexOf('-') !== -1 &&
+    (lines[i + 1].indexOf('|') !== -1 || splitTableRow(lines[i]).length === 1);
+}
+
+function renderBlocks(lines) {
+  var out = [];
+  var para = [];
+  function flushPara() {
+    if (para.length) {
+      out.push('<p>' + para.map(function (l) { return renderInline(l.trim()); }).join('<br>') + '</p>');
+      para = [];
+    }
+  }
+  var i = 0, m;
+  while (i < lines.length) {
+    var line = lines[i];
+    if (/^\s*$/.test(line)) { flushPara(); i++; continue; }
+
+    if ((m = RE_FENCE.exec(line))) {
+      flushPara();
+      var fenceChar = m[1].charAt(0), fenceLen = m[1].length, code = [];
+      var closeRe = new RegExp('^\\s{0,3}\\' + fenceChar + '{' + fenceLen + ',}\\s*$');
+      i++;
+      while (i < lines.length && !closeRe.test(lines[i])) { code.push(lines[i]); i++; }
+      i++; // 跳过结束围栏（流式时可能尚未到达）
+      out.push('<pre><code>' + escapeHtml(code.join('\n')) + '</code></pre>');
+      continue;
+    }
+    if ((m = RE_HEADING.exec(line))) {
+      flushPara();
+      var lv = m[1].length;
+      out.push('<h' + lv + '>' + renderInline(m[2]) + '</h' + lv + '>');
+      i++; continue;
+    }
+    if (isTableStart(lines, i)) {
+      flushPara();
+      var header = splitTableRow(line);
+      var aligns = splitTableRow(lines[i + 1]).map(function (c) {
+        var l = c.charAt(0) === ':', r = c.charAt(c.length - 1) === ':';
+        return l && r ? 'center' : r ? 'right' : l ? 'left' : '';
+      });
+      i += 2;
+      var rows = [];
+      while (i < lines.length && lines[i].indexOf('|') !== -1 && !/^\s*$/.test(lines[i])) { rows.push(splitTableRow(lines[i])); i++; }
+      var cellHtml = function (tag, c, idx) {
+        var a = aligns[idx] ? ' style="text-align:' + aligns[idx] + '"' : '';
+        return '<' + tag + a + '>' + renderInline(c) + '</' + tag + '>';
+      };
+      var html = '<table><thead><tr>' + header.map(function (c, idx) { return cellHtml('th', c, idx); }).join('') + '</tr></thead><tbody>';
+      rows.forEach(function (r) {
+        var cells = [];
+        for (var k = 0; k < header.length; k++) cells.push(cellHtml('td', r[k] || '', k));
+        html += '<tr>' + cells.join('') + '</tr>';
+      });
+      out.push(html + '</tbody></table>');
+      continue;
+    }
+    if (RE_HR.test(line)) {
+      // 段落后紧跟 --- 视为分隔线（不支持 setext 标题，避免误判）
+      flushPara(); out.push('<hr>'); i++; continue;
+    }
+    if (RE_QUOTE.test(line)) {
+      flushPara();
+      var q = [];
+      while (i < lines.length && (m = RE_QUOTE.exec(lines[i]))) { q.push(m[1]); i++; }
+      out.push('<blockquote>' + renderBlocks(q) + '</blockquote>');
+      continue;
+    }
+    if ((m = RE_LIST.exec(line))) {
+      flushPara();
+      var res = renderList(lines, i);
+      out.push(res.html); i = res.next; continue;
+    }
+    para.push(line);
+    i++;
+  }
+  flushPara();
+  return out.join('\n');
+}
+
+function renderList(lines, start) {
+  var first = RE_LIST.exec(lines[start]);
+  var base = indentOf(lines[start]);
+  var ordered = /^\d/.test(first[2]);
+  var startNum = ordered ? parseInt(first[2], 10) : 1;
+  var items = [];
+  var cur = null;
+  var i = start;
+  while (i < lines.length) {
+    var line = lines[i];
+    if (/^\s*$/.test(line)) {
+      // 空行：若下一非空行仍属于本列表（同级同类条目或更深缩进），继续；否则结束
+      var j = i + 1;
+      while (j < lines.length && /^\s*$/.test(lines[j])) j++;
+      if (j >= lines.length) { i = j; break; }
+      var nm = RE_LIST.exec(lines[j]);
+      var ni = indentOf(lines[j]);
+      if (ni >= base + 2 || (nm && ni >= base && (/^\d/.test(nm[2]) === ordered))) {
+        if (cur && ni >= base + 2) cur.children.push('');
+        i = j; continue;
+      }
+      break;
+    }
+    var m = RE_LIST.exec(line);
+    var ind = indentOf(line);
+    if (m && ind < base + 2) {
+      if (/^\d/.test(m[2]) !== ordered) break; // 列表类型变了，结束本列表
+      cur = { text: m[3], children: [] };
+      items.push(cur);
+      i++; continue;
+    }
+    if (ind >= base + 2 && cur) { cur.children.push(line); i++; continue; }
+    if (!m && cur && !cur.children.length && !RE_HEADING.test(line) && !RE_QUOTE.test(line) &&
+        !RE_FENCE.test(line) && !RE_HR.test(line) && !/^\s*$/.test(lines[i - 1])) {
+      cur.text += '\n' + line.trim(); // 懒续行
+      i++; continue;
+    }
+    break;
+  }
+  var tag = ordered ? 'ol' : 'ul';
+  var open = '<' + tag + (ordered && startNum !== 1 ? ' start="' + startNum + '"' : '') + '>';
+  var body = items.map(function (it) {
+    var textHtml = it.text.split('\n').map(renderInline).join('<br>');
+    var childHtml = it.children.length ? renderBlocks(dedent(it.children)) : '';
+    return '<li>' + textHtml + childHtml + '</li>';
+  }).join('');
+  return { html: open + body + '</' + tag + '>', next: i };
+}
+
+function dedent(lines) {
+  var min = Infinity;
+  lines.forEach(function (l) { if (!/^\s*$/.test(l)) min = Math.min(min, indentOf(l)); });
+  if (!isFinite(min) || min === 0) return lines;
+  return lines.map(function (l) { var x = l.replace(/^\t+/, function (t) { return t.replace(/\t/g, '    '); }); return x.slice(Math.min(min, indentOf(x))); });
+}
+
+function renderMarkdown(src) {
+  return renderBlocks(String(src || '').replace(/\r\n?/g, '\n').split('\n'));
+}
+
+/** Markdown -> 可读纯文本（复制纯文本用）：去井号、去强调标记、表格转为「表头：值」分行 */
+function mdToPlain(src) {
+  var lines = String(src || '').replace(/\r\n?/g, '\n').split('\n');
+  var out = [];
+  var inCode = false;
+  var PUNCT = /[!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~]/;
+  var RE_INCOMPLETE_HEADING = /^\s{0,3}#{1,6}\s*$/;
+
+  function findCloser(s, from, mark) {
+    var j = from;
+    while (j < s.length) {
+      if (s.charAt(j) === '\\' && j + 1 < s.length) { j += 2; continue; }
+      if (s.substr(j, mark.length) === mark) {
+        if (mark.length === 1 && s.charAt(j + 1) === mark.charAt(0)) { j++; continue; }
+        return j;
+      }
+      j++;
+    }
+    return -1;
+  }
+
+  function inlinePlain(s) {
+    var i = 0, n = s.length, outStr = '';
+    while (i < n) {
+      var c = s.charAt(i);
+      if (c === '\\' && i + 1 < n && PUNCT.test(s.charAt(i + 1))) {
+        outStr += s.charAt(i + 1);
+        i += 2;
+        continue;
+      }
+      if (c === '`') {
+        var ticks = 1;
+        while (s.charAt(i + ticks) === '`') ticks++;
+        var closer = s.indexOf(s.substr(i, ticks), i + ticks);
+        if (closer !== -1) {
+          outStr += s.substring(i + ticks, closer);
+          i = closer + ticks;
+          continue;
+        }
+        outStr += s.substring(i + ticks);
+        break;
+      }
+      if (c === '!' && s.charAt(i + 1) === '[') {
+        var img = /^!\[([^\]]*)\]\([^)]*\)/.exec(s.substring(i));
+        if (img) { outStr += img[1]; i += img[0].length; continue; }
+      }
+      if (c === '[') {
+        var link = /^\[([^\]]+)\]\(([^)\s]+)[^)]*\)/.exec(s.substring(i));
+        if (link) {
+          outStr += (link[1] === link[2] ? link[2] : link[1] + '（' + link[2] + '）');
+          i += link[0].length;
+          continue;
+        }
+      }
+      if (s.substr(i, 2) === '~~') {
+        var clt = findCloser(s, i + 2, '~~');
+        if (clt !== -1) { outStr += inlinePlain(s.substring(i + 2, clt)); i = clt + 2; continue; }
+        outStr += inlinePlain(s.substring(i + 2));
+        break;
+      }
+      if (s.substr(i, 3) === '***' || s.substr(i, 3) === '___') {
+        var mark3 = s.substr(i, 3);
+        var before3 = i === 0 ? ' ' : s.charAt(i - 1);
+        var allow3 = mark3.charAt(0) === '*' || /\s/.test(before3) || PUNCT.test(before3);
+        if (allow3) {
+          var cl3 = findCloser(s, i + 3, mark3);
+          if (cl3 !== -1) { outStr += inlinePlain(s.substring(i + 3, cl3)); i = cl3 + 3; continue; }
+          outStr += inlinePlain(s.substring(i + 3));
+          break;
+        }
+      }
+      if (s.substr(i, 2) === '**' || s.substr(i, 2) === '__') {
+        var mark2 = s.substr(i, 2);
+        var before2 = i === 0 ? ' ' : s.charAt(i - 1);
+        var allow2 = mark2.charAt(0) === '*' || /\s/.test(before2) || PUNCT.test(before2);
+        if (allow2) {
+          var cl2 = findCloser(s, i + 2, mark2);
+          if (cl2 !== -1) { outStr += inlinePlain(s.substring(i + 2, cl2)); i = cl2 + 2; continue; }
+          outStr += inlinePlain(s.substring(i + 2));
+          break;
+        }
+      }
+      if (c === '*' || c === '_') {
+        var after = s.charAt(i + 1);
+        var before = i === 0 ? ' ' : s.charAt(i - 1);
+        var canOpen = after && !/\s/.test(after);
+        if (c === '_') canOpen = canOpen && (i === 0 || /\s/.test(before) || PUNCT.test(before));
+        if (canOpen) {
+          var cl1 = findCloser(s, i + 1, c);
+          if (cl1 !== -1 && cl1 > i + 1 && !/\s/.test(s.charAt(cl1 - 1))) {
+            var afterClose = cl1 + 1 >= n ? ' ' : s.charAt(cl1 + 1);
+            var canClose = c === '*' || /\s/.test(afterClose) || PUNCT.test(afterClose) || cl1 + 1 >= n;
+            if (canClose) {
+              outStr += inlinePlain(s.substring(i + 1, cl1));
+              i = cl1 + 1;
+              continue;
+            }
+          } else if (cl1 === -1) {
+            outStr += inlinePlain(s.substring(i + 1));
+            break;
+          }
+        }
+      }
+      var br = /^<br\s*\/?>/i.exec(s.substring(i));
+      if (br) { outStr += ' '; i += br[0].length; continue; }
+      outStr += c;
+      i++;
+    }
+    return outStr;
+  }
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i], m;
+    if (RE_FENCE.test(line)) { inCode = !inCode; continue; }
+    if (inCode) { out.push(line); continue; }
+    if (RE_INCOMPLETE_HEADING.test(line)) { continue; }
+    if ((m = RE_HEADING.exec(line))) {
+      if (out.length && out[out.length - 1] !== '') out.push('');
+      out.push(inlinePlain(m[2]));
+      continue;
+    }
+    if (isTableStart(lines, i)) {
+      var header = splitTableRow(line).map(inlinePlain);
+      i += 2;
+      while (i < lines.length && lines[i].indexOf('|') !== -1 && !/^\s*$/.test(lines[i])) {
+        var cells = splitTableRow(lines[i]).map(inlinePlain);
+        var parts = [];
+        for (var k = 0; k < header.length; k++) parts.push(header[k] ? header[k] + '：' + (cells[k] || '') : (cells[k] || ''));
+        out.push('· ' + parts.join('；'));
+        i++;
+      }
+      i--;
+      continue;
+    }
+    if (RE_HR.test(line)) { out.push(''); continue; }
+    if ((m = RE_QUOTE.exec(line))) { out.push(inlinePlain(m[1])); continue; }
+    if ((m = RE_LIST.exec(line))) {
+      var bullet = /^\d/.test(m[2]) ? m[2].replace(')', '.') : '•';
+      out.push(m[1].replace(/\t/g, '    ') + bullet + ' ' + inlinePlain(m[3]));
+      continue;
+    }
+    out.push(inlinePlain(line));
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+/* =====================================================================
+ * 6. 模拟模式（网址加 ?mock 或 #mock）：本地生成流式 SSE，不发任何网络请求
+ *    ?mock=slow 慢速；?mock=401|402|404|429|500 模拟错误；?mock=network 网络失败；?mock=xss 输出含脚本
+ * ===================================================================== */
+var MOCK_REPORT = [
+  '# 周报 | 【待补充：姓名或岗位】 | 【待补充：周期】',
+  '',
+  '## 核心摘要',
+  '会员权益改版主流程方案已定稿（三块完成两块），第三块「积分抵现」因数据组字段口径未出已等待 4 天，预计还差 2 天；周四晚支付超时问题已回滚并加超时重试，高峰期未再出现。**需领导协调数据组本周内确定积分抵现字段口径。**',
+  '',
+  '## 一、工作分析',
+  '### 1. 会员权益改版：主流程方案定稿，三块完成两块',
+  '- **进展**：与设计小王、后端阿陈对齐，方案改了 3 版后主流程定稿；三块中两块基本完成，第三块预计还差 2 天（待确认）。',
+  '- **耗时**：周一至周三用于方案对齐。',
+  '- 【卡点】积分抵现因数据组字段口径未出未闭环（已等待 4 天），已做：催办 2 次、往返沟通 3 轮。',
+  '',
+  '### 2. 计划外：支付超时问题处置（救火）',
+  '- 问题：周四晚线上支付超时；我做了：协助值班同事回滚并加超时重试；避免了：高峰期再次出现超时。',
+  '',
+  '### 3. 计划外：运营活动页需求评审',
+  '- 完成评审并输出一页结论，已于周五交付运营。',
+  '',
+  '| 事项 | 状态 | 备注 |',
+  '| --- | --- | --- |',
+  '| 主流程方案 | 已定稿 | 改了 3 版 |',
+  '| 积分抵现 | 阻塞 | 等数据组口径 |',
+  '',
+  '## 二、问题分析',
+  '1. **积分抵现字段口径未定**',
+  '   - 根因：依赖数据组输出口径，尚未排期。',
+  '   - 影响：第三块无法收尾，可能推迟整体排期。',
+  '   - 已采取：催办 2 次、往返 3 轮。',
+  '   - 需要支持：请领导协调数据组本周内给出口径。',
+  '',
+  '## 三、经验总结',
+  '- 跨团队依赖需在方案阶段即确认口径负责人与时间点，避免后期等待。',
+  '',
+  '## 四、未来计划',
+  '- 输出需求说明（含验收标准），完成标准：与研发评审通过并进入排期。',
+  '- 本周内拿到数据组积分抵现口径（需领导协调）。',
+  '',
+  '## 待补充问题',
+  '- 姓名或岗位、周期',
+  '- 各块具体耗时',
+  '- 支付超时受影响订单数',
+  '- 积分口径延误对上线时间的具体影响',
+  '- 需求说明的完成日期'
+].join('\n') + '\n';
+
+var MOCK_XSS = '# 周报 | 测试 | XSS\n\n## 核心摘要\n<script>window.__xss = 1<\/script>\n<img src=x onerror="window.__xss=2">\n[点我](javascript:window.__xss=3)\n';
+
+function getMockScenario() {
+  var m = /[?&#]mock(?:=([\w-]+))?/.exec(location.search + location.hash);
+  if (!m) return null;
+  return m[1] || 'ok';
+}
+var MOCK_MODE = !!getMockScenario();
+
+function isNewcomerPrompt(sys) {
+  return /##\s*Summary/.test(sys) && /##\s*iTeam/.test(sys);
+}
+function extractDraftFromUser(userContent) {
+  var idx = userContent.indexOf('# 草稿');
+  if (idx === -1) return userContent;
+  var after = userContent.slice(idx + 4).replace(/^\s+/, '');
+  var cut = after.search(/\n# /);
+  return (cut === -1 ? after : after.slice(0, cut)).trim();
+}
+function buildMockNewcomerReport(draft) {
+  var d = String(draft || '').trim();
+  var login = /登录页报错|校验顺序/.test(d);
+  var auth = /鉴权|和导师对疑问|再走一遍/.test(d);
+  var lines = [
+    '# 周报 | 【待补充：姓名或岗位】 | 【待补充：周期】',
+    '',
+    '## Summary',
+    '- 学习项目：' + (login ? '读懂登录页报错与校验顺序' : (auth ? '再走一遍鉴权并和导师对疑问' : '（见草稿；未单独命名则待补充）')),
+    '- 内容摘要：' + (login ? '读懂了登录页报错，以前没注意校验顺序' : (auth ? '下周想再走一遍鉴权，并和导师对疑问' : '按草稿整理，未提供的细节列入待补充问题')),
+    '- 完成状况：' + (login ? '已理解报错与校验顺序这一点（草稿未给出完成比例）' : (auth ? '计划已提出，草稿未给出完成度量' : '草稿未给出可核实的完成度量')),
+    '',
+    '## 本周学习内容'
+  ];
+  if (login) {
+    lines.push('草稿写到：读懂了登录页报错，以前没注意校验顺序。');
+    lines.push('');
+    lines.push('- 价值：弄清校验顺序，是为了在登录失败时能沿着校验链路定位问题，而不是只停留在报错字面。');
+    lines.push('- 对比：以前没注意校验顺序；这次是先读懂报错，再去看校验按什么顺序发生，关注点从「出现了报错」转到「报错处在哪一步」。');
+    lines.push('- 比喻：登录校验像一道按顺序检查的关卡，报错说明某道关没有过；顺着顺序看，比只盯着最后的失败提示更容易找到卡住的位置。');
+  } else if (!d || /先占位|稍后再补|还没想好/.test(d)) {
+    lines.push('草稿未提供可推断的学习内容，上下文不足，无法补写价值、对比或比喻。标题保留，细节见待补充问题。');
+  } else if (d) {
+    lines.push('按草稿已写内容整理如下；价值、对比、比喻若草稿未写，仅在有可推断的学习内容时按上下文补写，不编造数字、人员或未发生的经历。');
+    lines.push(d.length > 400 ? d.slice(0, 400) + '…' : d);
+  } else {
+    lines.push('草稿未提供可推断的学习内容，上下文不足，标题保留。');
+  }
+  lines.push('');
+  lines.push('## 问题与挑战');
+  lines.push('草稿未提供可核实的挑战或求助，标题保留，细节见待补充问题。');
+  lines.push('');
+  lines.push('## iTeam');
+  lines.push('草稿未提供可核实的协作对象或收获，标题保留，细节见待补充问题。');
+  lines.push('');
+  lines.push('## 下周学习计划');
+  if (auth) {
+    lines.push('按草稿：下周想再走一遍鉴权，并和导师对疑问。草稿没有给出截止日期或量化标准，这里不补编。');
+  } else {
+    lines.push('草稿未提供可核实的时间、数字或衡量标准，标题保留，细节见待补充问题。');
+  }
+  lines.push('');
+  lines.push('## 待补充问题');
+  lines.push('- 姓名或岗位、周期');
+  if (login) {
+    lines.push('- 完成状况的可核度量（若需要）');
+  }
+  if (!login && !auth) {
+    lines.push('- 本周学习内容的上下文不足，价值、对比、比喻无法补写');
+    lines.push('- 各段尚未在草稿中出现的事实与结果');
+  }
+  if (auth) lines.push('- 若需要衡量标准或时间点，请在草稿中补充（此处不代写）');
+  lines.push('- 问题与挑战、iTeam 协作对象（若实际发生）');
+  return lines.join('\n') + '\n';
+}
+
+function mockFetch(url, init) {
+  var scenario = getMockScenario() || 'ok';
+  var signal = init && init.signal;
+  return new Promise(function (resolve, reject) {
+    if (signal && signal.aborted) { reject(new DOMException('Aborted', 'AbortError')); return; }
+    if (scenario === 'network') { setTimeout(function () { reject(new TypeError('Failed to fetch')); }, 150); return; }
+    var codes = { '401': 'invalid_api_key', '402': 'insufficient_balance', '404': 'model_not_found', '429': 'rate_limit_exceeded', '500': 'server_error' };
+    if (codes[scenario]) {
+      setTimeout(function () {
+        resolve(new Response(JSON.stringify({ error: { message: 'Mock error ' + scenario, type: codes[scenario], code: codes[scenario] } }),
+          { status: +scenario, headers: { 'Content-Type': 'application/json' } }));
+      }, 150);
+      return;
+    }
+    var reqBody = {};
+    try { reqBody = JSON.parse((init && init.body) || '{}'); } catch (e1) { reqBody = {}; }
+    var sysContent = '', userContent = '';
+    if (reqBody && reqBody.messages) {
+      reqBody.messages.forEach(function (m) {
+        if (!m) return;
+        if (m.role === 'system') sysContent += m.content || '';
+        if (m.role === 'user') userContent += m.content || '';
+      });
+    }
+    var newcomer = isNewcomerPrompt(sysContent);
+    var text = scenario === 'xss' ? MOCK_XSS : (newcomer ? buildMockNewcomerReport(extractDraftFromUser(userContent)) : MOCK_REPORT);
+    try {
+      if (userContent.indexOf('请在上一版周报基础上按修改意见改写') !== -1) {
+        var fb = '';
+        var fbIdx = userContent.indexOf('# 修改意见');
+        if (fbIdx !== -1) {
+          var after = userContent.slice(fbIdx + '# 修改意见'.length).replace(/^\s+/, '');
+          var cut = after.indexOf('\n# ');
+          fb = (cut === -1 ? after : after.slice(0, cut)).trim();
+        }
+        var anchor = newcomer ? '## 下周学习计划' : '## 四、未来计划';
+        text = text.replace(anchor, anchor + '\n- （已按修改意见更新' + (fb ? '：' + fb : '') + '）');
+      }
+    } catch (e) { /* keep default mock text */ }
+
+    var delay = scenario === 'slow' ? 120 : 20;
+    var events = [': keep-alive\n\n',
+      'data: ' + JSON.stringify({ choices: [{ index: 0, delta: { role: 'assistant', content: null } }] }) + '\n\n',
+      'data: ' + JSON.stringify({ choices: [{ index: 0, delta: { reasoning_content: '（思考内容，不应显示）' } }] }) + '\n\n'];
+    for (var p = 0; p < text.length;) {
+      var n = 3 + Math.floor(Math.random() * 10);
+      events.push('data: ' + JSON.stringify({ choices: [{ index: 0, delta: { content: text.slice(p, p + n) }, finish_reason: null }] }) + '\n\n');
+      p += n;
+    }
+    events.push('data: ' + JSON.stringify({ choices: [{ index: 0, delta: {}, finish_reason: 'stop' }] }) + '\n\n', 'data: [DONE]\n\n');
+    var bytes = new TextEncoder().encode(events.join(''));
+    var pos = 0, timer = null;
+    var stream = new ReadableStream({
+      start: function (controller) {
+        if (signal) signal.addEventListener('abort', function () {
+          clearTimeout(timer);
+          try { controller.error(new DOMException('Aborted', 'AbortError')); } catch (e) { /* ignore */ }
+        });
+        function push() {
+          if (pos >= bytes.length) { controller.close(); return; }
+          var size = 20 + Math.floor(Math.random() * 120); // 按字节切片，会切断多字节中文字符与 SSE 行
+          controller.enqueue(bytes.slice(pos, pos + size));
+          pos += size;
+          timer = setTimeout(push, delay);
+        }
+        timer = setTimeout(push, delay);
+      }
+    });
+    setTimeout(function () {
+      resolve(new Response(stream, { status: 200, headers: { 'Content-Type': 'text/event-stream; charset=utf-8' } }));
+    }, 80);
+  });
+}
+
+/* =====================================================================
+ * 7. 请求：流式 + 非流式降级 + 中止
+ * ===================================================================== */
+
+function HttpError(status, bodyText) { this.name = 'HttpError'; this.status = status; this.bodyText = bodyText; }
+function ApiStreamError(errObj) { this.name = 'ApiStreamError'; this.bodyText = JSON.stringify({ error: errObj }); }
+
+function looksLikeStreamUnsupported(status, bodyText) {
+  if (status !== 400 && status !== 422 && status !== 501) return false;
+  return /stream/i.test(bodyText || '');
+}
+
+/**
+ * 发起润色请求。
+ * cfg: { url, apiKey, model, messages, signal, fetchImpl, onState(state), onDelta(text), onNotice(msg) }
+ * 返回 Promise<{ content, nonStream }>
+ */
+function requestCompletion(cfg) {
+  var fetchImpl = cfg.fetchImpl || window.fetch.bind(window);
+  var noop = function () {};
+  var onState = cfg.onState || noop, onDelta = cfg.onDelta || noop, onNotice = cfg.onNotice || noop;
+  function send(stream) {
+    return fetchImpl(cfg.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.apiKey },
+      body: JSON.stringify(buildRequestBody(cfg.model, cfg.messages, stream)),
+      signal: cfg.signal,
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer',
+      cache: 'no-store'
+    });
+  }
+  function readJson(res) {
+    return res.text().then(function (t) {
+      var obj;
+      try { obj = JSON.parse(t); } catch (e) { throw new HttpError(res.status, t); }
+      if (obj && obj.error) throw new HttpError(res.status, t);
+      var c = obj && obj.choices && obj.choices[0];
+      var content = (c && c.message && typeof c.message.content === 'string') ? c.message.content : '';
+      if (content) onDelta(content);
+      return { content: content, nonStream: true };
+    });
+  }
+  function readStream(res) {
+    var reader = res.body.getReader();
+    var decoder = new TextDecoder('utf-8');
+    var content = '';
+    var finished = false;
+    var streamErr = null;
+    var parser = createSSEParser(function (ev) {
+      if (finished || streamErr) return;
+      var r = interpretSSEData(ev.data);
+      if (r.error) { streamErr = new ApiStreamError(r.error); return; }
+      if (r.content) { content += r.content; onDelta(r.content); }
+      if (r.done) finished = true;
+    });
+    onState('streaming');
+    function pump() {
+      return reader.read().then(function (chunk) {
+        if (chunk.done) {
+          parser.feed(decoder.decode());
+          parser.end();
+          if (streamErr) throw streamErr;
+          return { content: content, nonStream: false };
+        }
+        parser.feed(decoder.decode(chunk.value, { stream: true }));
+        if (streamErr) { reader.cancel().catch(noop); throw streamErr; }
+        if (finished) { reader.cancel().catch(noop); return { content: content, nonStream: false }; }
+        return pump();
+      });
+    }
+    return pump().catch(function (e) {
+      if (e && (e.name === 'AbortError' || e.name === 'ApiStreamError')) throw e;
+      if (cfg.signal && cfg.signal.aborted) { var ae = new Error('Aborted'); ae.name = 'AbortError'; throw ae; }
+      var se = new Error(String((e && e.message) || e)); se.name = 'StreamError'; se.partial = content; throw se;
+    });
+  }
+  function handle(res, stream) {
+    if (!res.ok) {
+      return res.text().catch(function () { return ''; }).then(function (t) {
+        if (stream && looksLikeStreamUnsupported(res.status, t)) {
+          onNotice('该服务不支持流式输出，已改为非流式。');
+          onState('requesting');
+          return send(false).then(function (r2) { return handle(r2, false); });
+        }
+        throw new HttpError(res.status, t);
+      });
+    }
+    var ct = (res.headers.get('content-type') || '').toLowerCase();
+    var isJson = ct.indexOf('application/json') !== -1 && ct.indexOf('event-stream') === -1;
+    if (!stream || isJson || !res.body || !res.body.getReader) {
+      if (stream) onNotice('服务商返回了非流式结果，已改为非流式显示。');
+      return readJson(res);
+    }
+    return readStream(res);
+  }
+  onState('requesting');
+  return send(true).then(function (res) { return handle(res, true); });
+}
+
+/* =====================================================================
+ * 8. 界面
+ * ===================================================================== */
+var $ = function (id) { return document.getElementById(id); };
+var el = {
+  provider: $('provider'), baseUrl: $('base-url'), model: $('model'), modelOptions: $('model-options'),
+  providerNote: $('provider-note'), apiKey: $('api-key'), toggleKey: $('toggle-key'), clearKey: $('clear-key'),
+  name: $('opt-name'), period: $('opt-period'),
+  modelPanel: $('model-panel'), modelStatus: $('model-status'),
+  draft: $('draft'), draftCount: $('draft-count'), fillSample: $('fill-sample'), clearDraft: $('clear-draft'),
+  start: $('start'), stop: $('stop'), status: $('status'), notice: $('notice'),
+  error: $('error'), errorTitle: $('error-title'), errorBody: $('error-body'), errorRawWrap: $('error-raw-wrap'), errorRaw: $('error-raw'),
+  resultBody: $('result-body'), resultEmpty: $('result-empty'), resultMd: $('result-md'), resultMeta: $('result-meta'),
+  resultSource: $('result-source'), resultModes: $('result-modes'), resultModeEdit: $('result-mode-edit'), resultModePreview: $('result-mode-preview'),
+  feedbackPanel: $('feedback-panel'), feedback: $('feedback'), revise: $('revise'),
+  copyMd: $('copy-md'), copyText: $('copy-text'), downloadMd: $('download-md'),
+  historyList: $('history-list'), historyEmpty: $('history-empty'), historyClear: $('history-clear'), historyCount: $('history-count'),
+  historyExport: $('history-export'), historyImport: $('history-import'), historyImportFile: $('history-import-file'),
+  tipsPanel: $('tips-panel'), toast: $('toast'), mockBanner: $('mock-banner')
+};
+
+var STATUS_TEXT = { idle: '空闲', requesting: '请求中', streaming: '流式输出中', done: '完成', error: '失败', aborted: '已中止' };
+
+function emptyModeSlot() {
+  return {
+    draft: '',
+    output: '',
+    feedback: '',
+    plainDirty: false,
+    resultMode: 'edit',
+    complete: false,
+    outputSaved: true,
+    lastRun: null,
+    lastMessages: null,
+    runKind: 'polish'
+  };
+}
+
+var state = {
+  provider: 'deepseek',
+  output: '',
+  outputSaved: true,
+  busy: false,
+  controller: null,
+  lastRun: null,
+  resultMode: 'edit',
+  complete: false,
+  lastMessages: null,
+  runKind: 'polish',
+  plainDirty: false,
+  uiMode: MODE_REGULAR,
+  runMode: null,
+  slots: { regular: emptyModeSlot(), newcomer: emptyModeSlot() }
+};
+
+function setStatus(s) {
+  el.status.dataset.state = s;
+  el.status.textContent = STATUS_TEXT[s] || s;
+  if (typeof syncStickyBarPad === 'function') syncStickyBarPad();
+}
+
+function setBusy(b) {
+  state.busy = b;
+  el.start.disabled = b;
+  el.start.hidden = b;
+  el.stop.hidden = !b;
+  el.provider.disabled = b;
+  if (el.revise) el.revise.disabled = b;
+  if (el.feedback) el.feedback.disabled = b;
+  if (el.resultSource) el.resultSource.readOnly = !!b;
+  // 生成中仍可点击模式项，由 setUiMode 拦截并 toast「请先停止当前润色」，然后回退选中项。
+  syncStickyBarPad();
+}
+
+var renderScheduled = false;
+function scheduleRender() {
+  if (renderScheduled) return;
+  renderScheduled = true;
+  (window.requestAnimationFrame || setTimeout)(function () { renderScheduled = false; renderOutput(); });
+}
+
+function plainNorm(s) {
+  return String(s || '').replace(/\r\n?/g, '\n').replace(/\n+$/g, '');
+}
+
+/** 将当前结果转为可读纯文本。词法转换：转义、围栏/行内代码、标题、强调（含未闭合与 _）、列表/表格。不删 C#、#12、3 * 5；不在代码中消化星号。不改写原始 state.output。 */
+function displayPlain(src) {
+  return mdToPlain(src);
+}
+
+function syncOutputFromEditor() {
+  if (el.resultSource && !el.resultSource.hidden && !state.busy) {
+    var visible = el.resultSource.value;
+    if (state.plainDirty) {
+      state.output = visible;
+    } else if (plainNorm(visible) !== plainNorm(displayPlain(state.output))) {
+      state.plainDirty = true;
+      state.output = visible;
+      state.outputSaved = false;
+    }
+  }
+  return state.output;
+}
+
+function getCurrentOutput() {
+  return syncOutputFromEditor();
+}
+
+function getDisplayPlain() {
+  var current = getCurrentOutput();
+  /* 用户改过纯文本后不再当 Markdown 解析，预览态下 textarea 隐藏时也走改后原文 */
+  if (state.plainDirty) return current;
+  return displayPlain(current);
+}
+
+function setResultMode(mode) {
+  state.resultMode = mode === 'edit' ? 'edit' : 'preview';
+  if (el.resultModeEdit) el.resultModeEdit.setAttribute('aria-pressed', String(state.resultMode === 'edit'));
+  if (el.resultModePreview) el.resultModePreview.setAttribute('aria-pressed', String(state.resultMode === 'preview'));
+  renderOutput();
+}
+
+function updateFeedbackVisibility() {
+  var show = !!state.complete && !state.busy && state.output.length > 0;
+  if (el.feedbackPanel) el.feedbackPanel.hidden = !show;
+  if (el.resultModes) el.resultModes.hidden = !(state.output.length > 0 && !state.busy);
+}
+
+function renderOutput() {
+  var body = el.resultBody;
+  var nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 40;
+  var has = state.output.length > 0;
+  var preview = has && !state.busy && state.resultMode === 'preview';
+  var showPlain = has && !preview;
+  el.resultEmpty.hidden = has;
+  if (el.resultSource) {
+    if (showPlain) {
+      if (state.busy || !state.plainDirty) {
+        var plain = displayPlain(state.output);
+        if (el.resultSource.value !== plain) el.resultSource.value = plain;
+      }
+      el.resultSource.hidden = false;
+    } else {
+      el.resultSource.hidden = true;
+    }
+  }
+  if (has) {
+    el.resultMd.innerHTML = renderMarkdown(state.output);
+  } else {
+    el.resultMd.innerHTML = '';
+    if (el.resultSource) el.resultSource.value = '';
+  }
+  el.resultMd.hidden = !preview;
+  el.copyMd.disabled = el.copyText.disabled = el.downloadMd.disabled = !has;
+  updateFeedbackVisibility();
+  if (has && state.busy && nearBottom) body.scrollTop = body.scrollHeight;
+}
+
+function showError(info) {
+  el.errorTitle.textContent = info.title;
+  el.errorBody.textContent = info.message;
+  if (info.raw) {
+    el.errorRaw.textContent = redactKey(String(info.raw));
+    el.errorRawWrap.hidden = false;
+  } else {
+    el.errorRawWrap.hidden = true;
+  }
+  el.error.hidden = false;
+}
+function hideError() { el.error.hidden = true; }
+function showNotice(msg) { el.notice.textContent = msg; el.notice.hidden = !msg; }
+
+function redactKey(s) {
+  var k = el.apiKey.value.trim();
+  if (k && k.length >= 6) s = s.split(k).join(maskKey(k));
+  return s;
+}
+
+var toastTimer = null;
+function toast(msg) {
+  el.toast.textContent = msg;
+  el.toast.classList.add('is-visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { el.toast.classList.remove('is-visible'); }, 1800);
+}
+
+/* ---------- 服务商 / 设置 ---------- */
+function populateProviders() {
+  PROVIDERS.forEach(function (p) {
+    var o = document.createElement('option');
+    o.value = p.id; o.textContent = p.label;
+    el.provider.appendChild(o);
+  });
+}
+
+/** 收起标题：只显示服务商名与是否已配置密钥，绝不显示密钥内容 */
+/** 配置是否完整：服务商、Base URL、模型、API Key 都已填写（模拟模式同样按实际填写判断） */
+function isConfigComplete() {
+  return !!(state.provider && el.baseUrl.value.trim() && el.model.value.trim() && el.apiKey.value.trim());
+}
+/** 收起标题：服务商 · 模型 · 是否已配置密钥；绝不显示密钥内容 */
+function updateModelSummary() {
+  if (!el.modelStatus) return;
+  var p = PROVIDER_MAP[state.provider] || PROVIDER_MAP.deepseek;
+  var hasKey = !!el.apiKey.value.trim();
+  var model = el.model.value.trim();
+  var base = el.baseUrl.value.trim();
+  var parts = [p.label];
+  if (hasKey) {
+    parts.push(model || '未填模型');
+    if (!base) parts.push('未填 Base URL');
+    parts.push('已配置密钥');
+  } else {
+    parts.push('未配置密钥');
+  }
+  el.modelStatus.textContent = parts.join(' · ');
+  el.modelStatus.dataset.configured = String(hasKey);
+  el.modelStatus.dataset.complete = String(isConfigComplete());
+}
+/*
+ * 「保存」时机：配置字段每次输入都会即时写入 localStorage；
+ * 当焦点离开整个「模型与密钥」面板（focusout）且本次有改动、配置已完整时，视为已保存并自动收起。
+ * 用户仍在面板内输入/切换字段时不收起。
+ */
+var modelDirty = false;
+function markModelDirty() { modelDirty = true; updateModelSummary(); }
+function maybeCollapseModelPanel() {
+  if (!el.modelPanel || !el.modelPanel.open) return;
+  var a = document.activeElement;
+  if (a && el.modelPanel.contains(a)) return;
+  if (modelDirty && isConfigComplete()) {
+    el.modelPanel.open = false;
+    modelDirty = false;
+  }
+}
+
+function loadProvider(id) {
+  var p = PROVIDER_MAP[id] || PROVIDER_MAP.deepseek;
+  state.provider = p.id;
+  el.provider.value = p.id;
+  var b = store.get(KEYS.baseUrl(p.id));
+  var m = store.get(KEYS.model(p.id));
+  el.baseUrl.value = b !== null ? b : p.baseUrl;
+  el.model.value = m !== null ? m : p.model;
+  el.apiKey.value = store.get(KEYS.apiKey(p.id)) || '';
+  el.apiKey.type = 'password';
+  el.toggleKey.textContent = '显示';
+  el.toggleKey.setAttribute('aria-pressed', 'false');
+  el.providerNote.textContent = p.note;
+  el.baseUrl.placeholder = p.id === 'custom' ? '必填，例如 http://127.0.0.1:8080/v1' : p.baseUrl;
+  el.model.placeholder = p.id === 'custom' ? '必填，模型 ID' : p.model;
+  el.modelOptions.innerHTML = '';
+  p.models.forEach(function (mm) {
+    var o = document.createElement('option'); o.value = mm; el.modelOptions.appendChild(o);
+  });
+  store.set(KEYS.provider, p.id);
+  updateModelSummary();
+}
+
+function saveBaseUrl() {
+  var p = PROVIDER_MAP[state.provider];
+  var v = el.baseUrl.value.trim();
+  if (v === p.baseUrl) store.remove(KEYS.baseUrl(p.id)); else store.set(KEYS.baseUrl(p.id), v);
+}
+function saveModel() {
+  var p = PROVIDER_MAP[state.provider];
+  var v = el.model.value.trim();
+  if (v === p.model) store.remove(KEYS.model(p.id)); else store.set(KEYS.model(p.id), v);
+}
+function saveKey() {
+  var v = el.apiKey.value.trim();
+  if (v) store.set(KEYS.apiKey(state.provider), v); else store.remove(KEYS.apiKey(state.provider));
+  updateModelSummary();
+}
+
+/* ---------- 表单 ---------- */
+function radioValue(name) {
+  var r = document.querySelector('input[name="' + name + '"]:checked');
+  return r ? r.value : '';
+}
+function setRadio(name, value) {
+  var r = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+  if (r) r.checked = true;
+}
+function getForm() {
+  return {
+    name: el.name.value.trim(),
+    period: el.period.value.trim(),
+    intensity: normalizeIntensity(radioValue('opt-intensity'))
+  };
+}
+function setForm(f) {
+  f = f || {};
+  el.name.value = f.name || '';
+  el.period.value = f.period || '';
+  setRadio('opt-intensity', normalizeIntensity(f.intensity || f.style));
+}
+function saveForm() { store.set(KEYS.form, JSON.stringify(getForm())); }
+
+function readDraftStore() {
+  var raw = store.get(KEYS.draft);
+  if (raw == null || raw === '') return { regular: '', newcomer: '' };
+  try {
+    var o = JSON.parse(raw);
+    if (o && typeof o === 'object' && !Array.isArray(o) && ('regular' in o || 'newcomer' in o)) {
+      return { regular: String(o.regular || ''), newcomer: String(o.newcomer || '') };
+    }
+  } catch (e) { /* legacy plain string */ }
+  return { regular: raw, newcomer: '' };
+}
+function writeDraftStore(slots) {
+  store.set(KEYS.draft, JSON.stringify({
+    regular: slots.regular || '',
+    newcomer: slots.newcomer || ''
+  }));
+}
+function currentUiMode() {
+  return resolveMode(state.uiMode);
+}
+function saveDraft() {
+  var slots = readDraftStore();
+  slots[currentUiMode()] = el.draft.value;
+  writeDraftStore(slots);
+  if (state.slots[currentUiMode()]) state.slots[currentUiMode()].draft = el.draft.value;
+  updateDraftCount();
+}
+function persistMode(mode) {
+  store.set(KEYS.mode, resolveMode(mode));
+}
+function loadPersistedMode() {
+  var raw = store.get(KEYS.mode);
+  if (raw == null || raw === '') return MODE_REGULAR;
+  if (isKnownMode(raw)) return raw;
+  return MODE_REGULAR;
+}
+function updateDraftCount() {
+  var n = el.draft.value.length;
+  el.draftCount.textContent = n ? n + ' 字' : '';
+}
+
+function stashCurrentMode() {
+  syncOutputFromEditor();
+  var mode = currentUiMode();
+  var s = state.slots[mode] || (state.slots[mode] = emptyModeSlot());
+  s.draft = el.draft ? el.draft.value : '';
+  s.output = state.output;
+  s.feedback = el.feedback ? el.feedback.value : '';
+  s.plainDirty = state.plainDirty;
+  s.resultMode = state.resultMode;
+  s.complete = state.complete;
+  s.outputSaved = state.outputSaved;
+  s.lastRun = state.lastRun;
+  s.lastMessages = state.lastMessages;
+  s.runKind = state.runKind;
+  var stored = readDraftStore();
+  stored[mode] = s.draft;
+  writeDraftStore(stored);
+}
+
+function applySlotToUi(mode) {
+  mode = resolveMode(mode);
+  var s = state.slots[mode] || (state.slots[mode] = emptyModeSlot());
+  state.uiMode = mode;
+  state.output = s.output || '';
+  state.plainDirty = !!s.plainDirty;
+  state.resultMode = s.resultMode || 'edit';
+  state.complete = !!s.complete;
+  state.outputSaved = s.outputSaved !== false;
+  state.lastRun = s.lastRun;
+  state.lastMessages = s.lastMessages;
+  state.runKind = s.runKind || 'polish';
+  if (el.draft) el.draft.value = s.draft || '';
+  if (el.feedback) el.feedback.value = s.feedback || '';
+  if (el.resultSource && state.plainDirty) el.resultSource.value = state.output;
+  updateDraftCount();
+  applyModeChrome();
+  renderOutput();
+}
+
+function applyModeChrome() {
+  var mode = currentUiMode();
+  var bundle = promptBundle(mode);
+  var radio = document.querySelector('input[name="opt-report-mode"][value="' + mode + '"]');
+  if (radio) radio.checked = true;
+  if (el.fillSample) el.fillSample.textContent = bundle.fillLabel;
+  if (el.draft) {
+    el.draft.placeholder = mode === MODE_NEWCOMER
+      ? '在这里填写学习草稿；也可先点「填入填写框架」。'
+      : '在这里贴草稿：流水账、碎片笔记都可以。';
+  }
+  var hint = $('intensity-mode-hint');
+  if (hint) hint.hidden = mode !== MODE_NEWCOMER;
+  var modeHint = $('mode-hint');
+  if (modeHint) modeHint.textContent = '';
+}
+
+function setUiMode(next, opts) {
+  opts = opts || {};
+  next = resolveMode(next);
+  if (next === currentUiMode()) {
+    applyModeChrome();
+    persistMode(next);
+    return true;
+  }
+  if (state.busy) {
+    if (!opts.silent) toast('请先停止当前润色');
+    applyModeChrome();
+    return false;
+  }
+  stashCurrentMode();
+  applySlotToUi(next);
+  persistMode(next);
+  renderHistory();
+  return true;
+}
+
+/* ---------- 历史 ---------- */
+function loadHistory() {
+  var h = store.getJSON(KEYS.history, []);
+  return Array.isArray(h) ? h : [];
+}
+function saveHistory(list) {
+  list = list.slice(0, HISTORY_LIMIT);
+  var json = JSON.stringify(list);
+  while (list.length > 1 && json.length > HISTORY_MAX_CHARS) { list.pop(); json = JSON.stringify(list); }
+  if (!store.set(KEYS.history, json)) {
+    while (list.length > 1) { list.pop(); json = JSON.stringify(list); if (store.set(KEYS.history, json)) break; }
+  }
+  return list;
+}
+/** 已知文本字段：缺省或 null 视为默认值；对象/数组/布尔/数值等非整段字符串则整条拒绝。不把对象转成 [object Object]，不扫描正文里的字面 apiKey。 */
+function readHistoryText(raw, key, fallback) {
+  if (!Object.prototype.hasOwnProperty.call(raw, key) || raw[key] == null) return { ok: true, value: fallback };
+  if (typeof raw[key] === 'string') return { ok: true, value: raw[key] };
+  return { ok: false };
+}
+function sanitizeHistoryEntry(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  var id;
+  if (typeof raw.id === 'string') id = raw.id;
+  else if (typeof raw.id === 'number' && isFinite(raw.id)) id = String(raw.id);
+  else return null;
+  if (!id) return null;
+  var createdAt;
+  if (!Object.prototype.hasOwnProperty.call(raw, 'createdAt') || raw.createdAt == null || raw.createdAt === '') {
+    createdAt = new Date().toISOString();
+  } else if (typeof raw.createdAt === 'string') {
+    createdAt = raw.createdAt;
+  } else {
+    return null;
+  }
+  var provider = readHistoryText(raw, 'provider', '');
+  var model = readHistoryText(raw, 'model', '');
+  var name = readHistoryText(raw, 'name', '');
+  var period = readHistoryText(raw, 'period', '');
+  var draft = readHistoryText(raw, 'draft', '');
+  var output = readHistoryText(raw, 'output', '');
+  if (!provider.ok || !model.ok || !name.ok || !period.ok || !draft.ok || !output.ok) return null;
+  var item = {
+    id: id,
+    createdAt: createdAt,
+    provider: provider.value,
+    model: model.value,
+    intensity: normalizeIntensity(raw.intensity || raw.style),
+    name: name.value,
+    period: period.value,
+    draft: draft.value,
+    output: output.value
+  };
+  if (Object.prototype.hasOwnProperty.call(raw, 'mode')) {
+    if (typeof raw.mode !== 'string') return null;
+    item.mode = raw.mode;
+  }
+  return item;
+}
+function entryModeInfo(raw) {
+  var hasKey = !!(raw && Object.prototype.hasOwnProperty.call(raw, 'mode'));
+  return classifyModeValue(raw && raw.mode, hasKey);
+}
+function addHistory(entry) {
+  var clean = sanitizeHistoryEntry(entry);
+  if (!clean) return;
+  var list = loadHistory().map(sanitizeHistoryEntry).filter(Boolean);
+  list.unshift(clean);
+  saveHistory(list);
+  renderHistory();
+}
+function formatTime(iso) {
+  try {
+    // 按本机时区显示（本工具在用户电脑本地打开）。箱内/用户默认 Asia/Shanghai。
+    return new Intl.DateTimeFormat('zh-CN', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+      timeZone: 'Asia/Shanghai'
+    }).format(new Date(iso));
+  } catch (e) { return iso; }
+}
+function renderHistory() {
+  var list = loadHistory();
+  el.historyList.innerHTML = '';
+  el.historyEmpty.hidden = list.length > 0;
+  el.historyClear.disabled = list.length === 0;
+  el.historyCount.textContent = list.length ? '共 ' + list.length + ' 条（最多 ' + HISTORY_LIMIT + ' 条）' : '';
+  list.forEach(function (h) {
+    var li = document.createElement('li');
+    li.className = 'history__item';
+    li.dataset.id = h.id;
+    var info = document.createElement('div'); info.className = 'history__info';
+    var meta = document.createElement('div'); meta.className = 'history__meta';
+    var item = sanitizeHistoryEntry(h) || h;
+    var infoMode = entryModeInfo(h);
+    var modeText = infoMode.kind === 'unknown' ? '模式无法识别' : modeLabel(infoMode.mode);
+    meta.textContent = modeText + ' · ' + formatTime(item.createdAt) + ' · ' + (item.intensity || '中') + ' · ' + (item.model || '');
+    var snip = document.createElement('div'); snip.className = 'history__snippet';
+    snip.textContent = String(h.draft || '').replace(/\s+/g, ' ').slice(0, 40);
+    snip.title = snip.textContent;
+    info.appendChild(meta); info.appendChild(snip);
+    var load = document.createElement('button'); load.type = 'button'; load.className = 'btn history__load'; load.textContent = '载入';
+    load.addEventListener('click', function () { restoreHistory(h.id); });
+    var del = document.createElement('button'); del.type = 'button'; del.className = 'btn btn--danger history__delete'; del.textContent = '删除';
+    del.setAttribute('aria-label', '删除这条历史');
+    del.addEventListener('click', function () { deleteHistory(h.id); });
+    li.appendChild(info); li.appendChild(load); li.appendChild(del);
+    el.historyList.appendChild(li);
+  });
+}
+function restoreHistory(id) {
+  if (state.busy) { toast('请先停止当前润色'); return; }
+  var h = loadHistory().filter(function (x) { return x.id === id; })[0];
+  if (!h) return;
+  var modeInfo = entryModeInfo(h);
+  if (modeInfo.kind === 'unknown') {
+    toast('无法识别周报模式，请检查导入文件');
+    return;
+  }
+  var targetMode = modeInfo.mode;
+  if (targetMode !== currentUiMode()) {
+    if (!state.outputSaved && state.output && !window.confirm('当前结果尚未保存到历史，载入历史将覆盖它。继续吗？')) return;
+    if (!setUiMode(targetMode)) return;
+  } else if (!state.outputSaved && state.output && !window.confirm('当前结果尚未保存到历史，载入历史将覆盖它。继续吗？')) {
+    return;
+  }
+  var item = sanitizeHistoryEntry(h) || h;
+  setForm(item); saveForm();
+  el.draft.value = item.draft || ''; saveDraft();
+  state.output = item.output || '';
+  state.outputSaved = true;
+  state.complete = !!state.output;
+  state.resultMode = 'edit';
+  state.plainDirty = false;
+  state.lastRun = { name: item.name, period: item.period };
+  state.slots[targetMode].draft = el.draft.value;
+  state.slots[targetMode].output = state.output;
+  state.slots[targetMode].plainDirty = false;
+  state.slots[targetMode].resultMode = 'edit';
+  state.slots[targetMode].complete = state.complete;
+  state.slots[targetMode].outputSaved = true;
+  state.slots[targetMode].lastRun = state.lastRun;
+  if (state.output) el.resultMd.innerHTML = renderMarkdown(state.output);
+  el.resultMeta.hidden = false;
+  el.resultMeta.textContent = '已载入历史（' + modeLabel(targetMode) + '）：' + formatTime(item.createdAt) + ' · ' + (item.provider || '') + ' / ' + (item.model || '');
+  hideError(); showNotice('');
+  setStatus('idle');
+  renderOutput();
+  toast('已载入历史');
+}
+function deleteHistory(id) {
+  saveHistory(loadHistory().filter(function (x) { return x.id !== id; }));
+  renderHistory();
+  toast('已删除');
+}
+
+/* ---------- 复制 / 下载 ---------- */
+function copyText(text) {
+  function fallback() {
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, text.length);
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('copy failed'));
+    });
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).catch(fallback);
+  }
+  return fallback();
+}
+function currentFilename() {
+  var r = state.lastRun || getForm();
+  return makeFilename(r.name, r.period);
+}
+function downloadMarkdown() {
+  var text = getCurrentOutput();
+  if (!text) return;
+  var blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = currentFilename();
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  toast('已下载 ' + a.download);
+}
+
+/* ---------- 主流程 ---------- */
+function validate() {
+  var p = PROVIDER_MAP[state.provider];
+  var base = el.baseUrl.value.trim();
+  var model = el.model.value.trim();
+  var key = el.apiKey.value.trim();
+  var draft = el.draft.value.trim();
+  if (!draft) return { title: '请先填写周报草稿', message: promptBundle(currentUiMode()).emptyDraftMessage, focus: el.draft };
+  if (!MOCK_MODE) {
+    if (!base) return { title: '请填写 Base URL', message: (p.id === 'custom' ? '自定义服务商需要填写 Base URL（只填到 …/v1 这一级）。' : '请填写 Base URL，或重新选择服务商以恢复预设。') + '未发送请求。', focus: el.baseUrl };
+    if (!isValidHttpUrl(base)) return { title: 'Base URL 格式不正确', message: '请填写以 https:// 或 http:// 开头的完整地址。未发送请求。', focus: el.baseUrl };
+    if (!model) return { title: '请填写模型名', message: (p.id === 'custom' ? '自定义服务商需要填写模型 ID。' : '请填写模型名，或重新选择服务商以恢复默认模型。') + '未发送请求。', focus: el.model };
+    if (!key) return { title: '请先填写 API Key', message: '没有密钥无法调用模型，未发送请求。', focus: el.apiKey };
+  }
+  return null;
+}
+
+function startGeneration(kind, messages) {
+  if (state.busy) return;
+  hideError(); showNotice('');
+  var v = validate();
+  if (v) {
+    showError({ title: v.title, message: v.message }); setStatus('error');
+    if (v.focus && el.modelPanel && el.modelPanel.contains(v.focus)) el.modelPanel.open = true;
+    if (v.focus) v.focus.focus();
+    return;
+  }
+
+  var form = getForm();
+  var draft = el.draft.value.trim();
+  var providerId = state.provider;
+  var model = el.model.value.trim() || (MOCK_MODE ? 'mock' : '');
+  var url = MOCK_MODE ? 'mock://local/chat/completions' : buildUrl(el.baseUrl.value);
+  state.runMode = currentUiMode();
+  state.lastRun = { name: form.name, period: form.period, mode: state.runMode };
+  state.lastMessages = messages;
+  state.runKind = kind;
+  state.output = '';
+  state.outputSaved = true;
+  state.complete = false;
+  state.resultMode = 'edit';
+  state.plainDirty = false;
+  if (el.resultSource) el.resultSource.value = '';
+  el.resultMd.innerHTML = '';
+  el.resultMeta.hidden = false;
+  el.resultMeta.textContent = (MOCK_MODE ? '模拟模式' : (PROVIDER_MAP[providerId].label + ' / ' + model)) + ' · 润色程度' + form.intensity;
+  renderOutput();
+
+  var controller = new AbortController();
+  state.controller = controller;
+  setBusy(true);
+  updateFeedbackVisibility();
+
+  requestCompletion({
+    url: url,
+    apiKey: MOCK_MODE ? 'mock' : el.apiKey.value.trim(),
+    model: model,
+    messages: messages,
+    signal: controller.signal,
+    fetchImpl: MOCK_MODE ? mockFetch : null,
+    onState: setStatus,
+    onDelta: function (t) { state.output += t; state.outputSaved = !state.output; scheduleRender(); },
+    onNotice: showNotice
+  }).then(function (res) {
+    if (!res.content.trim()) {
+      setStatus('error');
+      showError(classifyError({ kind: 'empty', providerId: providerId }));
+      return;
+    }
+    setStatus('done');
+    state.complete = true;
+    state.resultMode = 'edit';
+    state.plainDirty = false;
+    if (el.resultSource) el.resultSource.value = displayPlain(state.output);
+    el.resultMd.innerHTML = renderMarkdown(state.output);
+    addHistory({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+      createdAt: new Date().toISOString(),
+      provider: providerId, model: model,
+      intensity: form.intensity,
+      name: form.name, period: form.period,
+      draft: draft, output: state.output,
+      mode: state.runMode || currentUiMode()
+    });
+    state.outputSaved = true;
+  }).catch(function (e) {
+    if (e && e.name === 'AbortError') {
+      setStatus('aborted');
+      state.complete = false;
+      showNotice(state.output ? '已停止。已生成的部分保留在结果区，可复制，但不会自动存入历史。' : '已停止。');
+      if (state.output) {
+        state.resultMode = 'edit';
+        state.plainDirty = false;
+        if (el.resultSource) el.resultSource.value = displayPlain(state.output);
+        el.resultMd.innerHTML = renderMarkdown(state.output);
+      }
+      return;
+    }
+    setStatus('error');
+    var info;
+    if (e && e.name === 'HttpError') info = classifyError({ kind: 'http', status: e.status, bodyText: e.bodyText, providerId: providerId });
+    else if (e && e.name === 'ApiStreamError') info = classifyError({ kind: 'api', bodyText: e.bodyText, providerId: providerId });
+    else if (e && e.name === 'StreamError') info = classifyError({ kind: 'stream', rawMessage: e.message, providerId: providerId });
+    else if (e && e.name === 'TypeError') info = classifyError({ kind: 'network', rawMessage: String(e.message || e), providerId: providerId });
+    else info = { title: '请求失败', message: '发生未知错误，请重试。', raw: String(e && (e.stack || e.message) || e) };
+    showError(info);
+  }).then(function () {
+    state.controller = null;
+    setBusy(false);
+    stashCurrentMode();
+    renderOutput();
+  });
+}
+
+function startPolish() {
+  if (state.busy) return;
+  syncOutputFromEditor();
+  if (state.output && !state.outputSaved && !window.confirm('结果区有尚未保存到历史的内容，开始润色将覆盖它。继续吗？')) return;
+  var form = getForm();
+  var draft = el.draft.value.trim();
+  var mode = currentUiMode();
+  startGeneration('polish', buildMessages(form, draft, mode));
+}
+
+function startRevise() {
+  if (state.busy) return;
+  hideError(); showNotice('');
+  var followup = el.feedback ? el.feedback.value.trim() : '';
+  if (!followup) {
+    showError({ title: '请先填写修改意见', message: '修改意见为空，未发送请求。' });
+    setStatus('error');
+    if (el.feedback) el.feedback.focus();
+    return;
+  }
+  var current = getCurrentOutput();
+  if (!current.trim()) {
+    showError({ title: '还没有可修改的周报', message: '请先完成一次润色，或载入一条历史记录。' });
+    setStatus('error');
+    return;
+  }
+  var form = getForm();
+  var draft = el.draft.value.trim();
+  var mode = currentUiMode();
+  startGeneration('revise', buildReviseMessages(form, draft, current, followup, mode));
+}
+
+function stopPolish() {
+  if (state.controller) state.controller.abort();
+}
+
+/* ---------- 事件绑定 ---------- */
+function bind() {
+  el.provider.addEventListener('change', function () {
+    loadProvider(el.provider.value); hideError();
+    markModelDirty();
+  });
+  el.baseUrl.addEventListener('input', saveBaseUrl);
+  el.baseUrl.addEventListener('change', function () { el.baseUrl.value = el.baseUrl.value.trim(); saveBaseUrl(); });
+  el.model.addEventListener('input', saveModel);
+  el.model.addEventListener('change', function () { el.model.value = el.model.value.trim(); saveModel(); });
+  el.apiKey.addEventListener('input', saveKey);
+  [el.baseUrl, el.model, el.apiKey].forEach(function (x) { x.addEventListener('input', markModelDirty); });
+  el.modelPanel.addEventListener('focusout', function () { setTimeout(maybeCollapseModelPanel, 0); });
+  el.apiKey.addEventListener('blur', function () {
+    el.apiKey.type = 'password'; el.toggleKey.textContent = '显示'; el.toggleKey.setAttribute('aria-pressed', 'false');
+  });
+  el.toggleKey.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  el.toggleKey.addEventListener('click', function () {
+    var show = el.apiKey.type === 'password';
+    el.apiKey.type = show ? 'text' : 'password';
+    el.toggleKey.textContent = show ? '隐藏' : '显示';
+    el.toggleKey.setAttribute('aria-pressed', String(show));
+    if (show) el.apiKey.focus();
+  });
+  el.clearKey.addEventListener('click', function () {
+    store.remove(KEYS.apiKey(state.provider));
+    el.apiKey.value = '';
+    el.apiKey.type = 'password';
+    updateModelSummary();
+    toast('已清除 ' + PROVIDER_MAP[state.provider].label + ' 的密钥');
+  });
+
+  [el.name, el.period].forEach(function (x) { x.addEventListener('input', saveForm); });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="opt-intensity"]'), function (x) {
+    x.addEventListener('change', saveForm);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="opt-report-mode"]'), function (x) {
+    x.addEventListener('change', function () {
+      if (!setUiMode(x.value)) x.checked = (currentUiMode() === x.value);
+    });
+  });
+
+  el.draft.addEventListener('input', saveDraft);
+  el.fillSample.addEventListener('click', function () {
+    var bundle = promptBundle(currentUiMode());
+    var confirmText = currentUiMode() === MODE_NEWCOMER ? '草稿框已有内容，替换为填写框架吗？' : '草稿框已有内容，替换为示例草稿吗？';
+    if (el.draft.value.trim() && el.draft.value !== bundle.sample && !window.confirm(confirmText)) return;
+    el.draft.value = bundle.sample; saveDraft();
+    toast(currentUiMode() === MODE_NEWCOMER ? '已填入填写框架' : '已填入示例草稿');
+  });
+  el.clearDraft.addEventListener('click', function () { el.draft.value = ''; saveDraft(); el.draft.focus(); });
+
+  el.start.addEventListener('click', startPolish);
+  el.stop.addEventListener('click', stopPolish);
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); startPolish(); }
+  });
+
+  el.copyMd.addEventListener('click', function () {
+    copyText(getCurrentOutput()).then(function () { toast('已复制 Markdown'); }, function () { toast('复制失败，请手动选择文本复制'); });
+  });
+  el.copyText.addEventListener('click', function () {
+    copyText(getDisplayPlain()).then(function () { toast('已复制纯文本'); }, function () { toast('复制失败，请手动选择文本复制'); });
+  });
+  el.downloadMd.addEventListener('click', downloadMarkdown);
+
+  if (el.resultSource) {
+    el.resultSource.addEventListener('input', function () {
+      var canonical = displayPlain(state.output);
+      if (state.plainDirty || plainNorm(el.resultSource.value) !== plainNorm(canonical)) {
+        state.plainDirty = true;
+        state.output = el.resultSource.value;
+        state.outputSaved = false;
+      }
+    });
+  }
+  if (el.resultModeEdit) el.resultModeEdit.addEventListener('click', function () { syncOutputFromEditor(); setResultMode('edit'); });
+  if (el.resultModePreview) el.resultModePreview.addEventListener('click', function () { syncOutputFromEditor(); setResultMode('preview'); });
+  if (el.revise) el.revise.addEventListener('click', startRevise);
+
+  el.historyClear.addEventListener('click', function () {
+    if (!window.confirm('确定清空全部历史记录吗？此操作不可恢复。')) return;
+    store.remove(KEYS.history);
+    renderHistory();
+    toast('已清空历史');
+  });
+  if (el.historyExport) el.historyExport.addEventListener('click', exportHistory);
+  if (el.historyImport) el.historyImport.addEventListener('click', function () {
+    if (el.historyImportFile) el.historyImportFile.click();
+  });
+  if (el.historyImportFile) el.historyImportFile.addEventListener('change', function () {
+    var file = el.historyImportFile.files && el.historyImportFile.files[0];
+    el.historyImportFile.value = '';
+    if (file) importHistoryFile(file);
+  });
+}
+
+function historyHasSecret(obj) {
+  if (!obj || typeof obj !== 'object') return false;
+  var re = /api[-_]?key|authorization|bearer/i;
+  return Object.keys(obj).some(function (k) { return re.test(k); });
+}
+
+function exportHistory() {
+  var list = loadHistory().map(sanitizeHistoryEntry).filter(Boolean);
+  var leaked = list.some(historyHasSecret);
+  if (leaked) {
+    toast('导出失败：记录中含有密钥字段');
+    return;
+  }
+  var blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '周报小助手-历史.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  toast('已导出 ' + list.length + ' 条历史');
+}
+
+function importHistoryFile(file) {
+  var reader = new FileReader();
+  reader.onload = function () {
+    try {
+      var parsed = JSON.parse(String(reader.result || ''));
+      var incoming = Array.isArray(parsed) ? parsed
+        : (parsed && Array.isArray(parsed.items) ? parsed.items
+        : (parsed && Array.isArray(parsed.records) ? parsed.records : null));
+      if (!incoming) { toast('导入失败：文件格式不正确'); return; }
+      // 既有记录原样保留（含旧 role/style/自定义字段与显式未知 mode）。
+      // 全无效导入（未知 mode、密钥、重复 id）不得 sanitize 或回写已有历史。
+      var existing = loadHistory().slice();
+      var ids = {};
+      existing.forEach(function (x) { if (x && x.id != null) ids[String(x.id)] = true; });
+      var added = 0, skippedUnknown = 0;
+      var accepted = [];
+      incoming.forEach(function (raw) {
+        if (historyHasSecret(raw)) return;
+        var modeInfo = entryModeInfo(raw);
+        if (modeInfo.kind === 'unknown') { skippedUnknown++; return; }
+        var item = sanitizeHistoryEntry(raw);
+        if (!item || ids[item.id]) return;
+        accepted.push(item);
+        ids[item.id] = true;
+        added++;
+      });
+      if (added) {
+        var next = existing.concat(accepted);
+        next.sort(function (a, b) { return String((b && b.createdAt) || '').localeCompare(String((a && a.createdAt) || '')); });
+        saveHistory(next);
+        renderHistory();
+      }
+      if (skippedUnknown) toast('无法识别周报模式，请检查导入文件');
+      else toast(added ? ('已导入 ' + added + ' 条历史') : '没有新增记录（可能已存在或格式不含有效条目）');
+    } catch (e) {
+      toast('导入失败：无法解析 JSON');
+    }
+  };
+  reader.onerror = function () { toast('导入失败：无法读取文件'); };
+  reader.readAsText(file, 'utf-8');
+}
+
+function syncStickyBarPad() {
+  var actions = document.querySelector('.app-toolbar .actions');
+  if (!actions) return;
+  var mobile = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+  if (!mobile) {
+    document.documentElement.style.setProperty('--sticky-bar-h', '0px');
+    return;
+  }
+  var h = Math.ceil(actions.getBoundingClientRect().height);
+  if (!h) h = 88;
+  document.documentElement.style.setProperty('--sticky-bar-h', h + 'px');
+}
+
+function init() {
+  populateProviders();
+  loadProvider(store.get(KEYS.provider) || 'deepseek');
+  // 任何情况下默认收起；仅在开始润色 / 再改一版发现配置不全时才展开
+  el.modelPanel.open = false;
+  if (el.tipsPanel) el.tipsPanel.open = false;
+  setForm(store.getJSON(KEYS.form, {}));
+  var drafts = readDraftStore();
+  state.slots.regular.draft = drafts.regular;
+  state.slots.newcomer.draft = drafts.newcomer;
+  if (drafts.regular && store.get(KEYS.draft) && store.get(KEYS.draft).charAt(0) !== '{') {
+    writeDraftStore(drafts);
+  }
+  var startMode = loadPersistedMode();
+  state.uiMode = startMode;
+  persistMode(startMode);
+  applySlotToUi(startMode);
+  renderHistory();
+  renderOutput();
+  setStatus('idle');
+  if (MOCK_MODE) el.mockBanner.hidden = false;
+  bind();
+  syncStickyBarPad();
+  window.addEventListener('resize', syncStickyBarPad);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', syncStickyBarPad);
+}
+
+// 暴露给测试（不包含任何密钥）
+window.WR = {
+  VERSION: '2026-11-18-dual-mode',
+  PROVIDERS: PROVIDERS, SYSTEM_PROMPT: SYSTEM_PROMPT, SAMPLE_DRAFT: SAMPLE_DRAFT,
+  USER_TEMPLATE: USER_TEMPLATE, REVISE_TEMPLATE: REVISE_TEMPLATE,
+  SYSTEM_PROMPT_NEWCOMER: SYSTEM_PROMPT_NEWCOMER, USER_TEMPLATE_NEWCOMER: USER_TEMPLATE_NEWCOMER,
+  REVISE_TEMPLATE_NEWCOMER: REVISE_TEMPLATE_NEWCOMER, NEWCOMER_FRAME: NEWCOMER_FRAME,
+  MODE_REGULAR: MODE_REGULAR, MODE_NEWCOMER: MODE_NEWCOMER, MODE_LABELS: MODE_LABELS,
+  FIXED_AUDIENCE_NEWCOMER: FIXED_AUDIENCE_NEWCOMER,
+  resolveMode: resolveMode, promptBundle: promptBundle, setUiMode: setUiMode, currentUiMode: currentUiMode,
+  entryModeInfo: entryModeInfo,
+  buildUrl: buildUrl, buildMessages: buildMessages, buildReviseMessages: buildReviseMessages,
+  buildUserMessage: buildUserMessage, buildReviseMessage: buildReviseMessage,
+  buildRequestBody: buildRequestBody, fillSystemPrompt: fillSystemPrompt,
+  normalizeIntensity: normalizeIntensity, FIXED_AUDIENCE: FIXED_AUDIENCE, FIXED_LANG: FIXED_LANG, FIXED_ROLE: FIXED_ROLE,
+  updateModelSummary: updateModelSummary,
+  makeFilename: makeFilename, classifyError: classifyError, createSSEParser: createSSEParser, interpretSSEData: interpretSSEData,
+  renderMarkdown: renderMarkdown, mdToPlain: mdToPlain, displayPlain: displayPlain, requestCompletion: requestCompletion, maskKey: maskKey,
+  isConfigComplete: isConfigComplete,
+  getCurrentOutput: getCurrentOutput, getDisplayPlain: getDisplayPlain, sanitizeHistoryEntry: sanitizeHistoryEntry,
+  MOCK_MODE: MOCK_MODE, MOCK_REPORT: typeof MOCK_REPORT !== 'undefined' ? MOCK_REPORT : '',
+  state: state, KEYS: KEYS, TEMPERATURE: TEMPERATURE, HISTORY_LIMIT: HISTORY_LIMIT
+};
+
+init();
+})();
+</script>
+</body>
+</html>
